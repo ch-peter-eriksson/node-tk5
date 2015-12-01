@@ -20,6 +20,10 @@ for (var i = 0; i < 10; i++) {
 }
 console.log('addr', c.getServerAddress());
 
+var anim = tm.createAnimation();
+var channel = anim.createChannel();
+channel.addKeyframe(1, 0, 10);
+
 function ostkaka() {
   var cl = tm.getClient();
   delete cl;

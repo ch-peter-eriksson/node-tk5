@@ -24,9 +24,13 @@ public:
     info.GetReturnValue().Set(321);
   }
 
-  static NAN_METHOD(NewInstance) {
+  static Nan::NAN_METHOD_RETURN_TYPE NewInstance(Nan::NAN_METHOD_ARGS_TYPE info, IGSTitle* title) {
     v8::Local<v8::Function> cons = Nan::New(constructor());
-    info.GetReturnValue().Set(Nan::NewInstance(cons).ToLocalChecked());
+    v8::Local<v8::Object> obj = Nan::NewInstance(cons).ToLocalChecked();
+    TitleWrapper* tw = Nan::ObjectWrap::Unwrap<TitleWrapper>(obj);
+
+    tw->title = title;
+    info.GetReturnValue().Set(obj);
   }
 
   static NAN_METHOD(New) {

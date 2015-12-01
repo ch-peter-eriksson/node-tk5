@@ -140,12 +140,15 @@
     <None Include="..\binding.gyp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\AnimationChannelWrapper.h" />
+    <ClInclude Include="..\src\AnimationWrapper.h" />
     <ClInclude Include="..\src\ClientWrapper.h" />
     <ClInclude Include="..\src\CmdEventSink.h" />
     <ClInclude Include="..\src\TitleManagerWrapper.h" />
     <ClInclude Include="..\src\TitleWrapper.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\AnimationWrapper.cc" />
     <ClCompile Include="..\src\ClientWrapper.cc" />
     <ClCompile Include="..\src\TitleWrapper.cc" />
     <ClCompile Include="..\src\TitleManagerWrapper.cc" />

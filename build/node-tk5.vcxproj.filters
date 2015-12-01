@@ -94,6 +94,9 @@
     <ClCompile Include="..\src\ClientWrapper.cc">
       <Filter>..\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\AnimationWrapper.cc">
+      <Filter>..\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ClientWrapper.h">
@@ -103,6 +106,12 @@
       <Filter>..\src</Filter>
     </ClInclude>
     <ClInclude Include="..\src\TitleWrapper.h">
+      <Filter>..\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AnimationWrapper.h">
+      <Filter>..\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AnimationChannelWrapper.h">
       <Filter>..\src</Filter>
     </ClInclude>
   </ItemGroup>
