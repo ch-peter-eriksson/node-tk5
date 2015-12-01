@@ -1,0 +1,7 @@
+.DS_Store
+build/Debug
+build/Release
+node_modules/
+build/binding.opensdf
+build/*.user
+build/binding.sdf

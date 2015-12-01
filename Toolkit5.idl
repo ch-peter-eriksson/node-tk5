@@ -1,0 +1,759 @@
+// IDL source for GS2 Tk5
+//
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+        /**
+         * Command list is a container of commands to control scene in GS2.
+         * All commands in the lists are then executed in GS2 as one batch. 
+         * @see IGSTitleManager::createCommandList()
+         * @see IGSTitle::execute()
+         */
+	[
+		object,
+		uuid(5704a8e7-80fb-4d40-b965-8d99b6be330a),
+		dual,
+		pointer_default(unique),
+                helpstring("Created with CoCreateInstance().")
+	]
+	interface IGSCommandList : IDispatch
+	{
+                /**
+                 * Runs an animation. Animation can be stopped by IGSCommandList::stopAnimation().
+                 *
+                 * @param animNameOrObject Animation name (String) or animation object (IGSAnimation).
+                 * @param address          Node/effect where the animation is stored.
+                 * @param options          Options for running animation. Defaults are used if not given.
+                 */
+		HRESULT animate(VARIANT animNameOrObject, BSTR address, [optional] VARIANT options);
+
+                /**
+                 * Stop an animation.
+                 * @param animName Animation name to be stopped.
+                 * @param address  Node/effect where the animation is stored.
+                 */
+		HRESULT stopAnimation(BSTR animName, BSTR address);
+
+                /**
+                 * Set attribute on node/effect.
+                 *
+                 * @param nodePath  Node address. Nodes separated by /
+                 * @param attrName  Attribute name to set. It could also contain a channel definition after a dot character (Size.X).
+                 * @param value     Attribute value. 
+                 */
+		HRESULT set(BSTR address, BSTR attrName, VARIANT value);
+
+                /**
+                 * Create a new node in the scene.
+                 * @param nodeType Type of node to create. Example "Text".
+                 * @param newAddress Address of newly created node. Example "myGroup/myText".
+                 */
+		HRESULT createNode(BSTR nodeType, BSTR newAddress);
+
+                /**
+                 * Create a new effect in the scene.
+                 * @param effectType Type of effect to create. Example "Row".
+                 * @param newAddress Address of newly created effect. Example "myText/myRowFx".
+                 */
+		HRESULT createEffect(BSTR effectType, BSTR newAddress);
+
+		/**
+                 * Copies a node. It makes deep copy if node contains any children.
+                 * @param srcAddress Type of effect to create. Example "myParent/toBeCopied".
+                 * @param newAddress Address of newly copied node. The copied node is renamed to the last component of this address. 
+                 *                   Example "myParent/newCopy". 
+                 */
+                HRESULT copyNode(BSTR srcAddress, BSTR newAddress);
+
+                /**
+                 * Rename node or effect. The node to be renamed cannot be moved to another parent.
+                 * @param address Address of node to be renamed. Example "myParent/toBeRenamed".
+                 * @param newName  New name, just the name without the path. Example "newName".
+                 */
+		HRESULT renameNode(BSTR address, BSTR newName);
+
+		/**
+                 * Delete node.
+                 * @param address Address of node to be deleted. Example "myParent/toBeDeleted".
+                 */
+                HRESULT deleteNode(BSTR address);
+
+		/**
+                 * Delete effect.
+                 * @param address Address of effect to be deleted. Example "myParent/toBeDeleted".
+                 */
+		HRESULT deleteEffect(BSTR address);
+
+                /**
+                 * Load a scene and insert it into current scene.
+                 * @param sceneName Name of the scene to load. Example: "intro.gse"
+                 * @param newAddress Address of newly loaded scene root. The root of loaded scene is renamed to the last component of this address. 
+                 *                   Example "myParent/intro". 
+                 */
+		HRESULT loadScene(BSTR sceneName, BSTR newAddress);
+
+                /**
+                 * Execute action.
+                 * @param actionName Name of the action.
+                 */
+                HRESULT doAction(BSTR actionName);
+
+                /**
+                 * Begin new transaction. All commands after this command are executed 
+                 * after all commands in the same transaction issue earlier are completed.
+                 * @param transactionName Name of transaction. If empty or not given then title's zone name is used.
+                 */
+		HRESULT beginTransaction([optional] VARIANT transactionName);
+
+                /**
+                 * End open transaction.
+                 */
+		HRESULT endTransaction();
+
+                /**
+                 * All pending transactions of given name are compressed in time and evaluated in just one frame.
+                 * The scene state after rolled transaction is equal to normal transaction execution. It is just done faster.
+                 * @param transactionName Name of transaction. If empty or not given then title's zone name is used.
+                 */
+		HRESULT rollTransaction([optional] VARIANT transactionName);
+
+                /**
+                 * Schedule a callback from GS2 to your application. The callback is called when this command is processed in GS2.
+                 * @return id Callback ID. Installed listeners (event sinks) are called with this ID to identify this callback.
+                 */
+		HRESULT callback([out,retval] long* id);
+
+                /**
+                 * The current scene that has just been created by commands issued earlier is search for any resources that are not ready 
+                 * in GS2. If there are some, then they are loaded in background thread and the scene is disabled in the mean time.
+                 * One the resources are loaded, the scene gets visible. You can use this command in transaction to be notified when the preload 
+                 * is complete.
+                 * @param address Node to preload. You can preload only subscene if you want to. You can pass empty string to preload the whole title.
+                 */
+		HRESULT preload(BSTR address);
+
+                /**
+                 * Begins capturing sequence of rendered frames. This can only be called in Preview channel.
+                 * This is a marker in a timeline to specify the first frame to be rendered.
+                 * @param previewID Unique ID of the capture sequence. Later you need to pass the same ID to get the rendered images.
+                 */
+		HRESULT beginSequencePreview(int previewID);
+
+                /**
+                 * Ends capturing sequence of rendered frames. This can only be called in Preview channel.
+                 * This is a marker in a timeline to specify the end of rendered sequence.
+                 * @param previewID Unique ID of the capture sequence. Later you need to pass the same ID to get the rendered images.
+                 */
+                HRESULT endSequencePreview(int previewID);
+
+                /**
+                 * Renders single frame. It captures the current state of the scene when this command is issued.
+                 * This can only be called in Preview channel.
+                 * @param previewID Unique ID of the capture sequence. Later you need to pass the same ID to get the rendered image.
+                 */
+		HRESULT captureStillPreview(int previewID);
+
+                /**
+                 * Changes states of a GS2 zone. This command is typically added to command list made as a reaction to event IGSCmdEvents::onZoneChange().
+                 * @param state State to be set. True means zone visible. False means zone in preview only.
+                 */
+                HRESULT setZoneState(BOOL state);
+	};
+
+
+        /**
+         * @see IGSClient::createAsyncProcessor()
+         */
+	[
+		object,
+		uuid(88E5886B-99CB-4904-B726-8755D8A72C30),
+		dual,
+		pointer_default(unique)
+	]
+	interface IGSAsyncProcessor : IDispatch
+	{
+                /**
+                 * Wait for async event. Method returns when event has been
+                 * received by Tk5. This method could be called from any thread.
+                 * @return false when async was closed. The result in COM when
+                 *         called by IDispatch is presented as VT_BOOL otherwise
+                 *         use macros VARIANT_FALSE / VARIANT_TRUE.
+                 */
+		HRESULT waitEvent([out,retval] VARIANT_BOOL * retval);
+
+                /**
+                 * Process received events. This method might call any 
+                 * registered listeners or event sinks back to host code.
+                 * This method should be called from a thread that is suitable
+                 * for receiving such callbacks.
+                 */
+		HRESULT process();
+
+                /**
+                 * Close async processing.
+                 * Typically called from main thread to wakeup async thread.
+                 */
+                HRESULT close();
+	};
+
+
+	[
+		object,
+		uuid(1555802a-ceb6-403b-a083-660e18f374cd),
+		dual,
+		helpstring("IGSTitle Interface"),
+		pointer_default(unique)
+	]
+	interface IGSTitle : IDispatch
+	{
+                /**
+                 * Set title name. You can later find this title by method IGSTitleManager::findTitleByName()
+                 */
+		[id(1)] HRESULT setTitleName(BSTR name);
+
+                /**
+                 * Delete the title in GS2. If there is no transaction set by setDestroyTransactionName()
+                 * then the title is destroyed immediately. If there is one, then the title root node is deleted
+                 * in that transaction. You can for example first run some animation and delete the title after it finishes.
+                 */
+		[id(2)] HRESULT destroy();
+
+		[id(3), hidden] HRESULT begin();
+		[id(4), hidden] HRESULT end();
+		[id(5), hidden] HRESULT loadScene(BSTR sceneName, BSTR newAddress);
+		[id(6), hidden] HRESULT createNode(BSTR nodeType, BSTR newAddress);
+		[id(7), hidden] HRESULT createEffect(BSTR effectType, BSTR newAddress);
+		[id(8), hidden] HRESULT copyNode(BSTR srcAddress, BSTR newAddress);
+		[id(9), hidden] HRESULT deleteNode(BSTR nodeName);
+		[id(10), hidden] HRESULT deleteEffect(BSTR effectName);
+		[id(11), hidden] HRESULT set(BSTR address, BSTR attrName, VARIANT value);
+		[id(12), hidden] HRESULT animate(VARIANT animNameOrObject, BSTR address, [optional] VARIANT options);
+		[id(13), hidden] HRESULT stopAnimation(BSTR animName, BSTR address);
+		[id(14), hidden] HRESULT callSceneAction(BSTR actionName);
+		[id(15), hidden] HRESULT transactionBegin(VARIANT transactionName);
+		[id(16), hidden] HRESULT transactionEnd();
+		[id(17), hidden] HRESULT transactionRoll(VARIANT transactionName);
+		[id(18), hidden] HRESULT commandCallback([out,retval] long* id);
+
+                /**
+                 * Get title zone. Zone is also a default transaction name of this title when empty transaction is  
+                 * passed to transaction commands in command list.
+                 */
+		[id(19)] HRESULT getZone([out, retval] BSTR* name);
+
+		// 20 removed, was setDataDir
+                /**
+                 * Override project just for this title. The project is normally set by IGSTitleManager::setProject() and used by all titles.
+                 */
+		[id(21)] HRESULT setProject(BSTR name);
+
+                /**
+                 * Set transaction name to be used when deleting title in GS2 by calling destroy() method.
+                 */
+		[id(22)] HRESULT setDestroyTransactionName(BSTR name);
+
+		[id(23), hidden] HRESULT previewSchedule(int previewID);
+
+                /**
+                 * Destroy title in given transaction. It is equal to calling setDestroyTransactionName() followed by destroy()
+                 * @param transactionName transaction name to be created for deleting the title root node. If empty then title's zone name is used.
+                 */
+		[id(24)] HRESULT destroyInTransaction(VARIANT transactionName);
+
+		[id(25), hidden] HRESULT preload(BSTR nodeName);
+		[id(26), hidden] HRESULT previewScheduleBegin(int previewID);
+		[id(27), hidden] HRESULT previewScheduleEnd(int previewID);
+		[id(28), hidden] HRESULT renameNode(BSTR nodeAddress, BSTR newNodeName);
+
+                /**
+                 * Enable notification system of state changes of title's zone.
+                 * Notification is disabled by default. You can assign an event sink to IGSClient and get the notification delivered to method IGSCmdEvents::onZoneChange()
+                 */
+		[id(29)] HRESULT enableZoneNotification();
+
+                /**
+                 * Execute a command list. Optionally you can specify node prefix. This is useful when you want to execute
+                 * the same command list on different nodes.
+                 * @param cmdList Command list to execute.
+                 * @param nodePrefix Optional node address prefix that is added before any node address in command list. Default prefix is empty.
+                 */
+		[id(30)] HRESULT execute(IGSCommandList* cmdList, [optional] VARIANT nodePrefix);
+	};
+
+	[
+		object,
+		uuid(d1a4f8f0-d3c6-11e0-9572-0800200c9a66),
+		dual,
+		helpstring("IGSClient Interface"),
+		pointer_default(unique)
+	]
+	interface IGSClient : IDispatch
+	{
+                /**
+                 * Set hostname of IP address of a computer with GS2 server. Call this before connect calling().
+                 */
+		[id(1)] HRESULT setServerAddress(BSTR hostname);
+
+                /**
+                 * Connect to GS2 server.
+                 */
+		[id(2)] HRESULT connect();
+
+                /**
+                 * Disconnect from GS2 server.
+                 */
+		[id(3)] HRESULT disconnect();
+
+		[id(4), hidden] HRESULT setZoneState(BSTR zoneName, BOOL state);
+
+                /**
+                 * Get state of a zone in GS2. This function makes round trip to GS2.
+                 */
+		[id(5)] HRESULT getZoneState(BSTR zoneName, [out, retval] BOOL* state);
+
+                /**
+                 * Retries GS2 server version.
+                 * @return server version as a string. Example: 2293.1
+                 */
+		[id(6)] HRESULT getServerVersion([out, retval] BSTR* pVal);
+
+                /**
+                 * Changes current virtual camera.
+                 */
+		[id(7)] HRESULT switchCamera(BSTR cameraName);
+
+                /**
+                 * Generate new unique preview ID. Preview Id is then used in methods IGSCommandList::captureStillPreview(), 
+                 * IGSCommandList::beginSequencePreview(), IGSCommandList::endSequencePreview(), previewGetStillImageFile() and previewGetSequenceImageFiles().
+                 */
+		[id(8)] HRESULT previewGenerateID([out, retval] int* previewID);
+
+		[id(9),hidden] HRESULT previewSchedule(int previewID);
+
+                /**
+                 * Obtains rendered preview image.
+                 * @param previewID Preview ID obtained from previewGenerateID() and passed to IGSCommandList::captureStillPreview() to render marked scene state.
+                 * @param fileName File name where to store the rendered image. The path must be valid at the GS2 server. Various image formats are supported, like PNG, JPEG.
+                 */
+		[id(10)] HRESULT previewGetStillImageFile(int previewID, BSTR fileName);
+
+                /**
+                 * Write current GS2 render output to image file. The file stored by GS2 server. The path is fixed. Use this just for debugging.
+                 */
+		[id(11)] HRESULT writeRenderPicture();
+
+                /**
+                 * Set handler for getting announcements of GS2 server disconnection.
+                 */
+		[id(12), propput] HRESULT onDisconnectListener(IDispatch* handler);
+
+                /**
+                 * Obtains rendered preview image sequence.
+                 * @param previewID Preview ID obtained from previewGenerateID() and passed to IGSCommandList::beginSequencePreview(), IGSCommandList::endSequencePreview() to render marked scene state.
+                 * @param fileName File name where to store the rendered image. The path must be valid at the GS2 server. 
+                 * Various image formats are supported, like PNG, JPEG.
+                 * Underscore character and four digit numeric suffix is added to the file base name (before extension). Example: When you 
+                 * pass `out.png` then files `out_0000.png`, `out_0001.png`, ... are created.
+                 */
+		[id(13)] HRESULT previewGetSequenceImageFiles(int previewID, BSTR fileName, [out, retval] int* numberOfImages);
+
+		[id(14), propput,hidden] HRESULT onPickResultListener(IDispatch* handler);
+		[id(15),hidden] HRESULT sendPickRequest(float x, float y);
+
+                /**
+                 * Get GS2 server network address.
+                 */
+		[id(16)] HRESULT getServerAddress([out, retval] BSTR* hostname);
+		[id(17),hidden] HRESULT sendPickRequestTag(BSTR tagName);
+
+                /**
+                 * Write complete GS2 scene to file on the server. This is used for debugging.
+                 */
+		[id(18)] HRESULT writeScene();
+
+                /**
+                 * Set handler to be called when message comes from server. Messages are sent either by server scripts or command SendMessage.
+                 */
+		[id(19), propput] HRESULT onMessageListener(IDispatch* handler);
+
+                /**
+                 * Set value of a property of RemoteAccessibleObject. These objects live outside of a GS2 scene. They are mostly service objects.
+                 */
+		[id(20)] HRESULT roaSet(BSTR object, BSTR field, VARIANT value);
+
+                /**
+                 * Get value of a property of RemoteAccessibleObject. These objects live outside of a GS2 scene. They are mostly service objects.
+                 */
+                [id(21)] HRESULT roaGet(BSTR object, BSTR field, [out, retval] VARIANT* value);
+
+                /**
+                 * Call method on a RemoteAccessibleObject. These objects live outside of a GS2 scene. They are mostly service objects. 
+                 * This method has variable number of arguments that are passed to ROA object.
+                 */
+		[vararg] HRESULT roaCall(BSTR object, BSTR funcName, SAFEARRAY(VARIANT) args, [out, retval] VARIANT* result);
+
+                /**
+                 * Set authentication password.
+                 */
+                HRESULT setPassword(BSTR password);
+
+                /**
+                 * Create async processor for receiving asynchornous event
+                 * when host main loop does not process Windows messages.
+                 */
+                HRESULT createAsyncProcessor([out, retval] IGSAsyncProcessor** processor);
+};
+
+	[
+		object,
+		uuid(613903EE-277F-48FE-8208-A93225869AB2),
+		dual,
+		helpstring("IAnimationOptions Interface"),
+		pointer_default(unique)
+	]
+	interface IGSAnimationOptions : IDispatch
+	{
+		[hidden, id(1)] HRESULT getNative([out] int**);
+
+                /**
+                 * Time offset in frames. Default is 0.
+                 */
+		[propget, id(2)] HRESULT offset([out, retval] float *pVal);
+		[propput, id(2)] HRESULT offset(float newVal);
+
+                /**
+                 * Skip first N frames of animation. Default is 0.
+                 */
+		[propget, id(3)] HRESULT skip([out, retval] float *pVal);
+		[propput, id(3)] HRESULT skip(float newVal);
+
+                /**
+                 * Premature end. Default is 0.
+                 */
+		[propget, id(4)] HRESULT end([out, retval] float *pVal);
+		[propput, id(4)] HRESULT end(float newVal);
+
+                /**
+                 * Play mode enums:
+                 * - `FIRST`
+                 * - `FORWARD`   (default)
+                 * - `BACKWARD`
+                 * - `LAST`
+                 * - `DEMAND`
+                 * - `STOP`
+                 */
+		[propget, id(5)] HRESULT playMode([out, retval] BSTR *pVal);
+		[propput, id(5)] HRESULT playMode(BSTR newVal);
+
+                /**
+                 * Defines if transaction waits for this animation. Default is true.
+                 */
+		[propget, id(6)] HRESULT enableFinish([out, retval] BOOL *pVal);
+		[propput, id(6)] HRESULT enableFinish(BOOL newVal);
+
+                /**
+                 * You can name your animation when you run it. Later on, you can stop it by this name. 
+                 * It is also allowed to run the same scene animation several times at the same time 
+                 * when you use unique name (in this field).
+                 */
+		[propget, id(7)] HRESULT name([out, retval] BSTR *pVal);
+		[propput, id(7)] HRESULT name(BSTR newVal);
+
+                /**
+                 * When you need to monitor the progress of animation execution in server then
+                 * set this Watch ID to unique value identifying this animation. This ID is then used
+                 * as a key in progress reading API via ROA.
+                 */
+		[propget, id(8)] HRESULT watchID([out, retval] int *pVal);
+		[propput, id(8)] HRESULT watchID(int newVal);
+                
+	};
+
+	[
+		object,
+		uuid(352C3290-110B-401C-A696-48D41588DFA6),
+		dual,
+		helpstring("IAnimationChannel Interface"),
+		pointer_default(unique)
+	]
+	interface IGSAnimationChannel : IDispatch
+	{
+                /**
+                 * Destination Syntax:\n
+                 * [<TargetAddr>:]<AttributeName>[.<ChannelName>]
+                 */
+		[propget, id(1)] HRESULT destination([out, retval] BSTR *pVal);
+		[propput, id(1)] HRESULT destination(BSTR newVal);
+
+                /**
+                 * After enums:
+                 * - `CONSTANT` (default)
+                 * - `CYCLE`
+                 * - `CYCLE_OFFSET`
+                 * - `IDENTITY`
+                 * - `LINEAR`
+                 * - `OSCILLATE`
+                 */
+		[propget, id(2)] HRESULT after([out, retval] BSTR *pVal);
+		[propput, id(2)] HRESULT after(BSTR newVal);
+
+                /**
+                 * Before enums:
+                 * - `CONSTANT` (default)
+                 * - `CYCLE`
+                 * - `CYCLE_OFFSET`
+                 * - `IDENTITY`
+                 * - `LINEAR`
+                 * - `OSCILLATE`
+                 * - `BEYOND_RELATIVE`
+                 * - `BEYOND_INHERIT`
+                 */
+		[propget, id(3)] HRESULT before([out, retval] BSTR *pVal);
+		[propput, id(3)] HRESULT before(BSTR newVal);
+
+                /**
+                 * Key frame in/out interpolations:
+                 * - `LINEAR`
+                 * - `SMOOTH`
+                 * - `FLAT`
+                 * - `STEP`
+                 */
+		[id(4)] HRESULT addKeyframe(float time, float value, BSTR inInterpolation, BSTR outInterpolation);
+
+                /**
+                 * Key frame in/out interpolations:
+                 * - `LINEAR`
+                 * - `SMOOTH`
+                 * - `FLAT`
+                 * - `STEP`
+                 */
+		[id(5)] HRESULT addKeyframeWithTangents(float time, float value, BSTR inInterpolation, BSTR outInterpolation, float inTanX, float inTanY, float outTanX, float outTanY);
+	};
+
+	[
+		object,
+		uuid(282B87AD-135C-4447-9E1C-F5D58E165044),
+		dual,
+		helpstring("IGSAnimation Interface"),
+		pointer_default(unique)
+	]
+	interface IGSAnimation : IDispatch
+	{
+		[id(1), hidden] HRESULT getNative([out] int**);
+
+                /**
+                 * Create new animation channel.
+                 */
+		[id(2)] HRESULT createChannel([out,retval]  IGSAnimationChannel** channel);
+	};
+
+	[
+		object,
+		uuid(3C465EB7-C811-4C96-8CD2-F866391E3C91),
+		dual,
+		helpstring("IGSTitleManager Interface"),
+		pointer_default(unique)
+	]
+	interface IGSTitleManager : IDispatch
+	{
+                /**
+                 * Select GStudio2 project. Only one project can be selected at a time. 
+                 * Project selection is used for all titles crated by client.
+                 * @param name Project name.
+                 */
+		[id(1) ] HRESULT setProject(BSTR name);
+
+                /**
+                 * Creates title object. Titles are independent scenes existing in GS2 at the same time.
+                 * If title in the same zoneName already exists then that title is destroyed.
+                 * @param zoneName Zone name where title is created. Used  zone "default" if not specified. 
+                 *                 This parameter is also used as transaction name when transaction commands 
+                 *                 are used with empty transaction name.
+                 * @return         Title object
+                 */
+		[id(2) ] HRESULT createTitle([optional] VARIANT zoneName, [out,retval]  IGSTitle** title);
+
+                /**
+                 * Returns object responsible for client-server communication. 
+                 * Every title manager object has it's client object.
+                 * @return Client object
+                 */
+		[id(3) ] HRESULT getClient([out,retval]  IGSClient** client);
+
+                /**
+                 * Register another user function that is called when server executes command callback.
+                 * \code
+                 * void addCommandCallbackListener( IDispatch handler )
+                 * titleManager.onCommandCallback = handler
+                 * \endcode
+                 * @param handler Function that is called when server executes command callback.
+                 */
+		[id(4) ] HRESULT addCommandCallbackListener(IDispatch* handler);
+
+                /**
+                 * Register another user function that is called when server executes command callback.
+                 * \code
+                 * void addCommandCallbackListener( IDispatch handler )
+                 * titleManager.onCommandCallback = handler
+                 * \endcode
+                 * @param handler Function that is called when server executes command callback.
+                 */
+		[id(5), propput] HRESULT onCommandCallback(IDispatch* handler);
+
+                /**
+                 * Creates animation object. Animation object can be used to define dynamic animation.
+                 * @return Animation object
+                 */
+		[id(6) ] HRESULT createAnimation([out,retval]  IGSAnimation** anim);
+
+                /**
+                 * Creates animation options object. Animation options are passed to animate function to define 
+                 * additional (advanced) parameters how the animation should be played.
+                 * @return Animation options object
+                 */
+		[id(7) ] HRESULT createAnimationOptions([out,retval]  IGSAnimationOptions** anim);
+
+                 /**
+                 * Look for already existing title. You can create several title objects. 
+                 * If you loose handle of that object, this method helps you to find it. 
+                 * If no title objects match the search criteria NULL is returned. 
+                 * @param zoneName Zone name where title is created.
+                 * @return         Title object
+                 */
+		[id(8) ] HRESULT findTitleByZone(BSTR zoneName, [out,retval]  IGSTitle** title);
+
+                /**
+                 * Look for already existing title. You can create several title objects. 
+                 * If you loose handle of that object, this method helps you to find it. 
+                 * If no title objects match the search criteria NULL is returned. 
+                 * @param titleName Title name, see setTitleName() method on Title object.
+                 * @return Title object
+                 */
+		[id(9) ] HRESULT findTitleByName(BSTR titleName, [out,retval]  IGSTitle** title);
+
+                /**
+                 * Creates title object. Title object is the main object that represents title on screen.
+                 * If title in the same zoneName and channel already exists then that title is destroyed.
+                 * @param zoneName  Zone name where title is created. Used  zone "default" if not specified. 
+                 *                  This parameter is also used as transaction name when transaction commands 
+                 *                  are used with empty transaction name.
+                 * @param channelID Channel ID. Set to channel in which you the title is created.  
+                 *                  Default channel is 0. Channel must be configured in GS2 server.
+                 * @return          Title object
+                 */
+		[id(10)] HRESULT createTitleInChannel(BSTR zoneName, int channelID, [out,retval]  IGSTitle** title);
+
+                /**
+                 * Returns version of Tk5 module. For example "1.16.1" for 32 bit OS or "1.17 x64" for 64bit OS. 
+                 * The suffix " x64" is added only on 64bit operating systems.
+                 * @return version string in format <em>major.minor.release [x64]</em>
+                 */
+		[id(11) ] HRESULT getToolkitVersion([out, retval] BSTR* pVal);
+
+                /**
+                 * Creates new command list object. 
+                 * @return New command list
+                 */
+                [id(12) ] HRESULT createCommandList([out,retval]  IGSCommandList** cmdList);
+	};
+
+[
+	uuid(A5C1DDCF-7F92-4BC4-87D3-8D648A7813C9),
+	version(1.0),
+	helpstring("GStudio2 Toolkit5 Type Library")
+]
+library GSTK5Lib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+        
+	[
+		uuid(59345D3D-0651-4851-A884-DA263217A02B),
+		helpstring("Command Events")
+	]
+	dispinterface IGSCmdEvents
+	{
+	properties:
+	methods:
+                /**
+                 * Called when command callback had  been registered by IGSCommandList::callback() and the command was execute in GS2.
+                 * This is called to event sinks connected to IGSTitleManager.
+                 */
+		[id(1)] void onCommand(int cmd);
+
+                /**
+                 * Called when GS2 server disconnects.
+                 * This is called to event sinks connected to IGSClient.
+                 */
+		[id(2)] void onDisconnect();
+
+		[id(3),hidden] HRESULT onPickResult(BSTR xmlResult);
+
+                /**
+                 * Called when GS2 server receives a zone change request (from for example GS2Cutter application).
+                 * This is called to event sinks connected to IGSClient.
+                 */
+		[id(4)] HRESULT onZoneChange(BSTR zoneName, BOOL zoneState);
+
+                /**
+                 * Called when GS2 server sends a message (from for example EffectScript).
+                 * This is called to event sinks connected to IGSClient.
+                 */
+		[id(5)] HRESULT onMessage(BSTR message);
+	};
+
+	/**
+         * This object is a starting point to the whole GS2 Tk5 class hierachy. 
+         * Instantiate this class to get IGSTitleManager.
+         * Javascript example to create a new instance:
+         * <pre>
+         *   var tk5 = new ActiveXObject("GSTk5.TitleManager");
+         * </pre>
+         */
+        [
+		uuid(101B34A5-C886-4249-9E7E-17D3B1A673B7),
+		helpstring("TitleManager Class")
+	]
+	coclass TitleManager
+	{
+		[default] interface IGSTitleManager;
+		[default, source] dispinterface IGSCmdEvents;
+	};
+
+// \cond HIDDEN_SYMBOLS
+	[
+		uuid(42BA7776-2B09-4D12-A498-7D0AF2850621),
+		helpstring("Client Class"),
+		noncreatable,
+                hidden
+	]
+	coclass Client
+	{
+		[default] interface IGSClient;
+		[default, source] dispinterface IGSCmdEvents;
+	};
+
+	[
+		uuid(A15E8E2F-B1D1-49DF-922B-D9DA64A597BE),
+		helpstring("Animation Class")
+	]
+	coclass Animation
+	{
+		[default] interface IGSAnimation;
+	};
+// \endcond
+
+        /**
+         * Instantiate this class to get IGSCommandList. You can also create an instance by factory method IGSTitleManager::createCommandList().
+         */
+	[
+		uuid(254f640e-8586-4dca-b134-ca7cd5b30a9b),
+		helpstring("CommandList Class")
+	]
+	coclass CommandList
+	{
+		[default] interface IGSCommandList;
+	};
+};

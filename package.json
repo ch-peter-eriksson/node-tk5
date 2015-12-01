@@ -1,0 +1,11 @@
+{
+  "name": "node-tk5",
+  "version": "0.0.0",
+  "description": "Node.js GSTK5 API",
+  "main": "node-tk5.js",
+  "private": true,
+  "gypfile": true,
+  "dependencies": {
+    "nan": "^2.1.0"
+  }
+}
