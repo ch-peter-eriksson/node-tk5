@@ -10,8 +10,8 @@ using namespace v8;
 class AnimationWrapper : public Nan::ObjectWrap
 {
 private:
-  IGSAnimation* anim = NULL;
 public:
+  IGSAnimation* anim = NULL;
   AnimationWrapper() {}
   ~AnimationWrapper() {
     if (anim) {

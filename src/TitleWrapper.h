@@ -1,6 +1,9 @@
 #pragma once
 #include <nan.h>
+#include "CommandListWrapper.h"
 #include "../Toolkit5_h.h"
+
+using namespace std;
 
 class TitleWrapper : public Nan::ObjectWrap
 {
@@ -21,7 +24,14 @@ public:
 
   static NAN_METHOD(Execute) {
     TitleWrapper* obj = Nan::ObjectWrap::Unwrap<TitleWrapper>(info.This());
-    info.GetReturnValue().Set(321);
+    CommandListWrapper* clw = Nan::ObjectWrap::Unwrap<CommandListWrapper>(info[0]->ToObject());
+    variant_t v = NULL;
+    if ((info.Length() > 1) && (info[1]->IsString())) {
+      String::Utf8Value cmd(info[1]);
+      string nodePrefix = string(*cmd);
+      v = nodePrefix.c_str();
+    }
+    obj->title->execute(clw->cl, v);
   }
 
   static Nan::NAN_METHOD_RETURN_TYPE NewInstance(Nan::NAN_METHOD_ARGS_TYPE info, IGSTitle* title) {

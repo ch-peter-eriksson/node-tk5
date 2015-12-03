@@ -132,6 +132,7 @@ public:
     int id;
     HRESULT hr = obj->client->previewGenerateID(&id);
     Tk5Utils::CheckAndThrowCOMError(hr);
+    info.GetReturnValue().Set(id);
   }
 
   static NAN_METHOD(PreviewSchedule) {

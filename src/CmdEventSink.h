@@ -5,6 +5,7 @@ class CmdEventSink : IGSCmdEvents
 {
 private:
   long m_cRef;
+  void* _owner;
   DWORD eventCookie;
   IConnectionPoint * m_pIConnectionPoint = NULL;
 public:
@@ -26,8 +27,14 @@ public:
   void __stdcall onDisconnect();
   HRESULT __stdcall onPickResult(BSTR xmlResult);
   HRESULT __stdcall onZoneChange(BSTR zoneName, BOOL zoneState);
-  HRESULT __stdcall onMessage(BSTR message);
+  HRESULT __stdcall onMessage(BSTR message); 
 
-  CmdEventSink(IDispatch *parent);
+  void(*onCommandEvent)(void* owner, int cmd);
+  void(*onDisconnectEvent)(void* owner);
+  void(*onPickResultEvent)(void* owner, BSTR xmlResult);
+  void(*onZoneChangeEvent)(void* owner, BSTR zoneName, bool zoneState);
+  void(*onMessageEvent)(void* owner, BSTR message);
+
+  CmdEventSink(IDispatch *parent, void* owner);
   ~CmdEventSink();
 };

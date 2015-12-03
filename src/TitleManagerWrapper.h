@@ -4,12 +4,14 @@
 #include "../Toolkit5_h.h"
 #include "ClientWrapper.h"
 #include "CmdEventSink.h"
+#include "EventWorker.h"
 #include "TitleWrapper.h"
 #include "AnimationWrapper.h"
+#include "AnimationOptionsWrapper.h"
+#include "CommandListWrapper.h"
 #include "comutil.h"
 #include <iostream>
 #include "Tk5Utils.h"
-
 
 using namespace v8;
 using namespace std;
@@ -18,13 +20,15 @@ class TitleManagerWrapper : public Nan::ObjectWrap
 {
 private:
   CmdEventSink * eventSink = NULL;
+  IGSAsyncProcessor* asyncProc = NULL;
   ISupportErrorInfo * supportErrorInfo = NULL;
-
 public:
-  static NAN_MODULE_INIT(Init) {
+    static NAN_MODULE_INIT(Init) {
     TitleWrapper::Init(target);
     ClientWrapper::Init(target);
     AnimationWrapper::Init(target);
+    AnimationOptionsWrapper::Init(target);
+    CommandListWrapper::Init(target);
 
     v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
     tpl->SetClassName(Nan::New("TitleManager").ToLocalChecked());
@@ -34,6 +38,11 @@ public:
     SetPrototypeMethod(tpl, "createTitle", CreateTitle);
     SetPrototypeMethod(tpl, "createTitleInChannel", CreateTitleInChannel);
     SetPrototypeMethod(tpl, "createAnimation", CreateAnimation);
+    SetPrototypeMethod(tpl, "createAnimationOptions", CreateAnimationOptions);
+    SetPrototypeMethod(tpl, "createCommandList", CreateCommandList);
+    SetPrototypeMethod(tpl, "setProject", SetProject);
+    SetPrototypeMethod(tpl, "getToolkitVersion", GetToolkitVersion);
+
 
     constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
     Nan::Set(target, Nan::New("TitleManager").ToLocalChecked(),
@@ -90,6 +99,16 @@ public:
 
     HRESULT hr = tmw->ptm->createTitle(zone, &title);
     if (Tk5Utils::CheckAndThrowCOMError(hr)) {
+      TitleWrapper::NewInstance(info, title);
+    }
+  }
+
+  static NAN_METHOD(CreateCommandList) {
+    TitleManagerWrapper* tmw = Unwrap(info);
+    IGSCommandList* cl = NULL;
+    HRESULT hr = tmw->ptm->createCommandList(&cl);
+    if (Tk5Utils::CheckAndThrowCOMError(hr)) {
+      CommandListWrapper::NewInstance(info, cl);
     }
   }
 
@@ -138,12 +157,30 @@ public:
     }
   }
 
+
+  static NAN_METHOD(GetToolkitVersion) {
+    TitleManagerWrapper *obj = Nan::ObjectWrap::Unwrap<TitleManagerWrapper>(info.This());
+    BSTR b;
+    HRESULT hr = obj->ptm->getToolkitVersion(&b);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+    info.GetReturnValue().Set(Nan::New((uint16_t*)b).ToLocalChecked());
+  }
+
   static NAN_METHOD(CreateAnimation) {
     TitleManagerWrapper *obj = Nan::ObjectWrap::Unwrap<TitleManagerWrapper>(info.This());
     IGSAnimation* anim = NULL;
     HRESULT hr = obj->ptm->createAnimation(&anim);
     if (Tk5Utils::CheckAndThrowCOMError(hr)) {
       AnimationWrapper::NewInstance(info, anim);
+    }
+  }
+
+  static NAN_METHOD(CreateAnimationOptions) {
+    TitleManagerWrapper *obj = Nan::ObjectWrap::Unwrap<TitleManagerWrapper>(info.This());
+    IGSAnimationOptions* options = NULL;
+    HRESULT hr = obj->ptm->createAnimationOptions(&options);
+    if (Tk5Utils::CheckAndThrowCOMError(hr)) {
+      AnimationOptionsWrapper::NewInstance(info, options);
     }
   }
 

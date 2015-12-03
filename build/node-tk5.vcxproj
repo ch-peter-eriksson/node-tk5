@@ -140,22 +140,27 @@
     <None Include="..\binding.gyp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\AnimationChannelWrapper.h" />
-    <ClInclude Include="..\src\AnimationWrapper.h" />
-    <ClInclude Include="..\src\ClientWrapper.h" />
-    <ClInclude Include="..\src\CmdEventSink.h" />
-    <ClInclude Include="..\src\TitleManagerWrapper.h" />
+    <ClInclude Include="..\src\AnimationOptionsWrapper.h" />
+    <ClInclude Include="..\src\CommandListWrapper.h" />
+    <ClInclude Include="..\src\DispArray.h" />
+    <ClInclude Include="..\src\EventWorker.h" />
     <ClInclude Include="..\src\TitleWrapper.h" />
+    <ClInclude Include="..\src\AnimationWrapper.h" />
+    <ClInclude Include="..\src\AnimationChannelWrapper.h" />
+    <ClInclude Include="..\src\ClientWrapper.h" />
+    <ClInclude Include="..\src\TitleManagerWrapper.h" />
+    <ClInclude Include="..\src\CmdEventSink.h" />
+    <ClInclude Include="..\src\tk5utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\DispArray.cc" />
+    <ClCompile Include="..\Toolkit5_i.c" />
+    <ClCompile Include="..\src\TitleWrapper.cc" />
     <ClCompile Include="..\src\AnimationWrapper.cc" />
     <ClCompile Include="..\src\ClientWrapper.cc" />
-    <ClCompile Include="..\src\TitleWrapper.cc" />
     <ClCompile Include="..\src\TitleManagerWrapper.cc" />
     <ClCompile Include="..\src\CmdEventSink.cc" />
-    <ClCompile Include="..\src\Tk5Utils.cc" />
-    <ClCompile Include="..\src\Tk5Utils.h" />
-    <ClCompile Include="..\Toolkit5_i.c" />
+    <ClCompile Include="..\src\tk5utils.cc" />
     <ClCompile Include="C:\Users\Peter\AppData\Roaming\npm\node_modules\node-gyp\src\win_delay_load_hook.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

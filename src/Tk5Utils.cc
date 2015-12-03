@@ -26,7 +26,7 @@ namespace Tk5Utils {
       s.c_str(),
       s.length(),
       &wstr[0],
-      s.length());
+      (int)s.length());
 
     BSTR b = SysAllocString(wstr.c_str());
     return b;
