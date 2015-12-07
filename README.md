@@ -3,9 +3,9 @@ Node API wrapping tk5
 
 ###Install
 To build this library, following components are needed
-- Visual Studio 2015 with c++ installed
-- Python 2.7
-- Python environment variable PYTHON={python-dir including exe}
+* Visual Studio 2015 with c++ installed
+* Python 2.7
+* Python environment variable PYTHON={python-dir including exe}
 
 Install (npm):
 `npm install "git+https://bitbucket.org/chyronhego_se/node-tk5.git" --msvs_version=2015`
@@ -33,4 +33,5 @@ title.execute(cl);
 ```
 
 
-Almost all of the api is the same as TK5, only difference is how events are signaled.
+Almost all of the api is the same as TK5, only difference is how events are signaled. The TitleManager object emits all possible events.
+tm.on('disconnect', function() {});
