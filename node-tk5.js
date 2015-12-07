@@ -1,6 +1,7 @@
 ﻿var TM = require('./build/Release/node-tk5').TitleManager;
 var events = require('events');
-var utils = require('utils');
+var util = require('util');
 
-inherits(TM, events.EventEmitter);
+util.inherits(events.EventEmitter, TM);
+
 module.exports.TitleManager = TM;
