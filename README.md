@@ -34,4 +34,13 @@ title.execute(cl);
 
 
 Almost all of the api is the same as TK5, only difference is how events are signaled. The TitleManager object emits all possible events.
+
+```
+#!javascript
+
 tm.on('disconnect', function() {});
+tm.on('command', function(cmd) {});
+tm.on('message', function(msg) {});
+tm.on('pickResult', function(pickXml) {});
+tm.on('zoneStateChanged', function(zoneName, state) {});
+```
