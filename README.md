@@ -2,10 +2,14 @@
 Node API wrapping tk5
 
 ###Install
-To build this library, following components are needed
+To build this library, following components are needed:
+
 * Visual Studio 2015 with c++ installed
+
 * Python 2.7
+
 * Python environment variable PYTHON={python-dir including exe}
+
 
 Install (npm):
 `npm install "git+https://bitbucket.org/chyronhego_se/node-tk5.git" --msvs_version=2015`
