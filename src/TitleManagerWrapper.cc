@@ -59,7 +59,38 @@ static void GS2Message(void* owner, BSTR msg) {
 TitleManagerWrapper::TitleManagerWrapper()
 {
   CoInitialize(NULL);
-  HRESULT hr = CoCreateInstance(CLSID_TitleManager, NULL, CLSCTX_ALL, IID_IGSTitleManager, (void **)&ptm);
+
+  ACTCTX actCtx;
+  memset((void*)&actCtx, 0, sizeof(ACTCTX));
+  actCtx.cbSize = sizeof(ACTCTX);
+#if defined(_M_X64)
+  actCtx.lpSource = "TitleManager.x.64.manifest"; 
+#else
+  actCtx.lpSource = "TitleManager.x.32.manifest";
+#endif
+
+  HANDLE hCtx = ::CreateActCtx(&actCtx);
+  if (hCtx == INVALID_HANDLE_VALUE) {
+    DWORD err = GetLastError();
+    cout << "CreateActCtx returned: INVALID_HANDLE_VALUE"
+      << err
+      << endl;
+  } 
+  else
+  {
+    ULONG_PTR cookie;
+    if (::ActivateActCtx(hCtx, &cookie))
+    {
+      HRESULT hr = CoCreateInstance(CLSID_TitleManager, NULL, CLSCTX_ALL, IID_IGSTitleManager, (void **)&ptm);
+      ::DeactivateActCtx(0, cookie);
+    }
+  }
+  
+  HRESULT hr;
+  // side-by-side failed, try to create titlemanager the regular way..
+  if (ptm == NULL) {
+    hr = CoCreateInstance(CLSID_TitleManager, NULL, CLSCTX_ALL, IID_IGSTitleManager, (void **)&ptm);
+  }
   IGSClient* client;
   hr = ptm->getClient(&client);
   client->createAsyncProcessor(&asyncProc);

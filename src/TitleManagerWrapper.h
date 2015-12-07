@@ -13,6 +13,8 @@
 #include "comutil.h"
 #include <iostream>
 
+#define _WIN32_FUSION 0x0100
+
 using namespace v8;
 using namespace std;
 

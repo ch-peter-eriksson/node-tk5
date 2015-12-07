@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" 
+  manifestVersion="1.0">
+
+<assemblyIdentity
+   type="win32"
+   name="TitleManager.x"
+   version="1.0.0.0" />
+
+<file name = "tk5/lib64/gstk5.dll">
+
+<comClass
+    clsid="{101B34A5-C886-4249-9E7E-17D3B1A673B7}"
+    threadingModel = "Apartment" />
+
+<typelib tlbid="{A5C1DDCF-7F92-4BC4-87D3-8D648A7813C9}"
+       version="1.0" helpdir=""/>
+
+</file>
+
+<comInterfaceExternalProxyStub 
+    name="IGSTitleManager" 
+    iid="{59345D3D-0651-4851-A884-DA263217A02B}"
+    proxyStubClsid32="{00020424-0000-0000-C000-000000000046}" 
+    baseInterface="{3C465EB7-C811-4C96-8CD2-F866391E3C91}"
+    tlbid = "{A5C1DDCF-7F92-4BC4-87D3-8D648A7813C9}" />
+
+</assembly>
