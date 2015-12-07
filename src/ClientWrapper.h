@@ -59,15 +59,11 @@ public:
   }
 
   static inline BSTR firstParamAsBSTR(Nan::NAN_METHOD_ARGS_TYPE info) {
-    if (info[0]->IsString()) {
-      String::Utf8Value cmd(info[0]);
-      BSTR b = Tk5Utils::StrToBSTR(*cmd);
-      return b;
-    }
-    else {
+    BSTR b = Tk5Utils::paramAsBSTR(info, 0);
+    if (b == NULL) {
       Nan::ThrowError(Nan::Error(Nan::New("Expected first argument to be a string").ToLocalChecked()));
-      return NULL;
     }
+    return b;
   }
 
   static NAN_METHOD(SetPassword) {
@@ -95,6 +91,7 @@ public:
     BSTR addr;
     HRESULT hr = obj->client->getServerAddress(&addr);
     Tk5Utils::CheckAndThrowCOMError(hr);
+    SysFreeString(addr);
     info.GetReturnValue().Set(Nan::New((uint16_t*)addr).ToLocalChecked());
   }
 
@@ -118,6 +115,7 @@ public:
         HRESULT hr = obj->client->setZoneState(b, info[1]->BooleanValue());
         Tk5Utils::CheckAndThrowCOMError(hr);
       }
+      SysFreeString(b);
     }
   }
 
@@ -125,6 +123,7 @@ public:
     ClientWrapper* obj = Unwrap(info);
     BSTR b = firstParamAsBSTR(info);
     obj->client->switchCamera(b);
+    SysFreeString(b);
   }
 
   static NAN_METHOD(PreviewGenerateID) {
@@ -144,7 +143,7 @@ public:
   static NAN_METHOD(PreviewGetStillImageFile) {
     ClientWrapper* obj = Unwrap(info);
     String::Utf8Value cmd(info[1]);
-    BSTR b = Tk5Utils::StrToBSTR(*cmd);
+    BSTR b = Tk5Utils::Utf8StrToBSTR(*cmd);
     HRESULT hr = obj->client->previewGetStillImageFile(info[0]->Uint32Value(), b);
     SysFreeString(b);
     Tk5Utils::CheckAndThrowCOMError(hr);
@@ -153,7 +152,7 @@ public:
   static NAN_METHOD(PreviewGetSequenceImageFiles) {
     ClientWrapper* obj = Unwrap(info);
     String::Utf8Value cmd(info[1]);
-    BSTR b = Tk5Utils::StrToBSTR(*cmd);
+    BSTR b = Tk5Utils::Utf8StrToBSTR(*cmd);
     int numImages = 0;
     unsigned int id = info[0]->Uint32Value();
     HRESULT hr = obj->client->previewGetSequenceImageFiles(id, b, &numImages);

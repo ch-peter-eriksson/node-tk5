@@ -57,7 +57,9 @@ var t;
   ch.addKeyframe(50, 500, "LINEAR", "LINEAR");
   cl.animate(anim, 'a', opt);
 
-  cl.set('text', 'BaseColor', [1,1,0,0.5]); 
+//  cl.set('text', 'BaseColor', [1,1,0,0.5]); 
+  cl.set('text', 'Text', 'HOHO۞'); 
+  cl.beginTransaction('123asdf');
 
   t.execute(cl);
 console.log('waiting again');
@@ -68,7 +70,10 @@ setTimeout(function() {
   console.log('delete');
   delete tm;
   global.gc();
-}, 20000);
+  console.log('gc done');
+  setTimeout(function() {
+   }, 20000);
+}, 5000);
 
 // extend prototype
 function inherits(target, source) {

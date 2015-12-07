@@ -2,6 +2,7 @@
 #include <nan.h>
 #include <v8.h>
 #include "../Toolkit5_h.h"
+#include "Tk5Utils.h"
 #include "ClientWrapper.h"
 #include "CmdEventSink.h"
 #include "EventWorker.h"
@@ -11,7 +12,6 @@
 #include "CommandListWrapper.h"
 #include "comutil.h"
 #include <iostream>
-#include "Tk5Utils.h"
 
 using namespace v8;
 using namespace std;
@@ -54,15 +54,11 @@ public:
   }
 
   static inline BSTR firstParamAsBSTR(Nan::NAN_METHOD_ARGS_TYPE info) {
-    if (info[0]->IsString()) {
-      String::Utf8Value cmd(info[0]);
-      BSTR b = Tk5Utils::StrToBSTR(*cmd);
-      return b;
-    }
-    else {
+    BSTR b = Tk5Utils::paramAsBSTR(info, 0);
+    if (b == NULL) {
       Nan::ThrowError(Nan::Error(Nan::New("Expected first argument to be a string").ToLocalChecked()));
-      return NULL;
     }
+    return b;
   }
 
   static NAN_METHOD(New) {
@@ -156,7 +152,6 @@ public:
       ClientWrapper::NewInstance(info, client);
     }
   }
-
 
   static NAN_METHOD(GetToolkitVersion) {
     TitleManagerWrapper *obj = Nan::ObjectWrap::Unwrap<TitleManagerWrapper>(info.This());

@@ -32,28 +32,18 @@ public:
     constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
   }
 
-  static inline BSTR paramAsBSTR(Nan::NAN_METHOD_ARGS_TYPE info, int idx) {
-    if (info[idx]->IsString()) {
-      String::Utf8Value cmd(info[idx]);
-      BSTR b = Tk5Utils::StrToBSTR(*cmd);
-      return b;
-    }
-    else {
-      return NULL;
-    }
-  }
-
   static NAN_GETTER(GetBefore) {
     AnimationChannelWrapper* obj = Unwrap(info);
     BSTR b;
     obj->channel->get_before(&b);
     info.GetReturnValue().Set(Nan::New((uint16_t*)b).ToLocalChecked());
+    SysFreeString(b);
   }
 
   static NAN_SETTER(SetBefore) {
     AnimationChannelWrapper* obj = Unwrap(info);
     String::Utf8Value cmd(value);
-    BSTR b = Tk5Utils::StrToBSTR(*cmd);
+    BSTR b = Tk5Utils::Utf8StrToBSTR(*cmd);
     obj->channel->put_before(b);
   }
 
@@ -62,12 +52,13 @@ public:
     BSTR b;
     obj->channel->get_after(&b);
     info.GetReturnValue().Set(Nan::New((uint16_t*)b).ToLocalChecked());
+    SysFreeString(b);
   }
 
   static NAN_SETTER(SetAfter) {
     AnimationChannelWrapper* obj = Unwrap(info);
     String::Utf8Value cmd(value);
-    BSTR b = Tk5Utils::StrToBSTR(*cmd);
+    BSTR b = Tk5Utils::Utf8StrToBSTR(*cmd);
     obj->channel->put_after(b);
   }
 
@@ -76,22 +67,23 @@ public:
     BSTR b;
     obj->channel->get_destination(&b);
     info.GetReturnValue().Set(Nan::New((uint16_t*)b).ToLocalChecked());
+    SysFreeString(b);
   }
 
   static NAN_SETTER(SetDestination) {
     AnimationChannelWrapper* obj = Unwrap(info);
     String::Utf8Value cmd(value);
-    BSTR b = Tk5Utils::StrToBSTR(*cmd);
+    BSTR b = Tk5Utils::Utf8StrToBSTR(*cmd);
     obj->channel->put_destination(b);
+    SysFreeString(b);
   }
-
 
   static NAN_METHOD(AddKeyFrame) {
     AnimationChannelWrapper* obj = Unwrap(info);
-    BSTR b1 = paramAsBSTR(info, 3);
-    BSTR b2 = paramAsBSTR(info, 4);
-    if (b1 == NULL) b1 = Tk5Utils::StrToBSTR("");
-    if (b2 == NULL) b2 = Tk5Utils::StrToBSTR("");
+    BSTR b1 = Tk5Utils::paramAsBSTR(info, 3);
+    BSTR b2 = Tk5Utils::paramAsBSTR(info, 4);
+    if (b1 == NULL) b1 = Tk5Utils::Utf8StrToBSTR("");
+    if (b2 == NULL) b2 = Tk5Utils::Utf8StrToBSTR("");
     if ((b1) && (b2)) {
       HRESULT hr = obj->channel->addKeyframe(info[0]->NumberValue(), info[1]->NumberValue(), b1, b2);
       SysFreeString(b1);
@@ -109,7 +101,6 @@ public:
   static inline AnimationChannelWrapper* Unwrap(Nan::NAN_SETTER_ARGS_TYPE info) {
     return Nan::ObjectWrap::Unwrap<AnimationChannelWrapper>(info.This());
   }
-
 
   static Nan::NAN_METHOD_RETURN_TYPE NewInstance(Nan::NAN_METHOD_ARGS_TYPE info, IGSAnimationChannel* channel) {
     v8::Local<v8::Function> cons = Nan::New(constructor());

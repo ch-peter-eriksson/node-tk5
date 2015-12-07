@@ -23,13 +23,30 @@ public:
   }
 
   static NAN_MODULE_INIT(Init) {
-    v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
+      v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
     tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
     // node methods
     Nan::SetPrototypeMethod(tpl, "animate", Animate);
+    Nan::SetPrototypeMethod(tpl, "stopAnimation", StopAnimation);
     Nan::SetPrototypeMethod(tpl, "set", Set);
+    Nan::SetPrototypeMethod(tpl, "createNode", CreateNode);
+    Nan::SetPrototypeMethod(tpl, "createEffect", CreateEffect);
+    Nan::SetPrototypeMethod(tpl, "copyNode", CopyNode);
+    Nan::SetPrototypeMethod(tpl, "renameNode", RenameNode);
+    Nan::SetPrototypeMethod(tpl, "deleteNode", DeleteNode);
+    Nan::SetPrototypeMethod(tpl, "deleteEffect", DeleteEffect);
     Nan::SetPrototypeMethod(tpl, "loadScene", LoadScene);
+    Nan::SetPrototypeMethod(tpl, "doAction", DoAction);
+    Nan::SetPrototypeMethod(tpl, "beginTransaction", BeginTransaction);
+    Nan::SetPrototypeMethod(tpl, "endTransaction", EndTransaction);
+    Nan::SetPrototypeMethod(tpl, "rollTransaction", RollTransaction);
+    Nan::SetPrototypeMethod(tpl, "callback", Callback);
+    Nan::SetPrototypeMethod(tpl, "preload", Preload);
+    Nan::SetPrototypeMethod(tpl, "beginSequencePreview", BeginSequencePreview);
+    Nan::SetPrototypeMethod(tpl, "endSequencePreview", EndSequencePreview);
+    Nan::SetPrototypeMethod(tpl, "captureStillPreview", CaptureStillPreview);
+    Nan::SetPrototypeMethod(tpl, "setZoneState", SetZoneState);
 
     constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
   }
@@ -37,17 +54,6 @@ public:
   
   static inline CommandListWrapper* Unwrap(Nan::NAN_METHOD_ARGS_TYPE info) {
     return Nan::ObjectWrap::Unwrap<CommandListWrapper>(info.This());
-  }
-
-  static inline BSTR paramAsBSTR(Nan::NAN_METHOD_ARGS_TYPE info, int idx) {
-    if (info[idx]->IsString()) {
-      String::Utf8Value cmd(info[idx]);
-      BSTR b = Tk5Utils::StrToBSTR(*cmd);
-      return b;
-    }
-    else {
-      return NULL;
-    }
   }
 
 
@@ -62,54 +68,22 @@ public:
 
   static NAN_METHOD(Set) {
     CommandListWrapper* clw = Unwrap(info);
-    DispArray * dispArr = NULL;
-    BSTR addr = NULL;
-    if (info[0]->IsString()) {
-      String::Utf8Value cmd(info[0]);
-      addr = Tk5Utils::StrToBSTR(*cmd);
-    }
+    BSTR addr = Tk5Utils::paramAsBSTR(info, 0);
     if (addr == NULL) {
       Nan::ThrowError(Nan::Error(Nan::New("Node address is missing in set cmd").ToLocalChecked()));
       return;
     }
 
-    BSTR attr = NULL;
-    if (info[1]->IsString()) {
-      String::Utf8Value cmd(info[1]);
-      attr = Tk5Utils::StrToBSTR(*cmd);
-    }
+    BSTR attr = Tk5Utils::paramAsBSTR(info, 0);
     if (attr == NULL) {
+      SysFreeString(addr);
       Nan::ThrowError(Nan::Error(Nan::New("Attribute is missing in set cmd").ToLocalChecked()));
       return;
     }
-    variant_t val;
-    if (info[2]->IsString()) {
-      String::Utf8Value cmd(info[2]);
-      val = variant_t(Tk5Utils::StrToBSTR(*cmd));
-    }
-    else if (info[2]->IsBoolean()) {
-      val = variant_t(info[2]->BooleanValue());
-    }
-    else if (info[2]->IsArray()) {
-      Local<Array> argv_handle = Local<Array>::Cast(info[2]);
-      int argc = argv_handle->Length();
-      float numbers[10] = {};
-      int i;
-      for (i = 0; i < argc; i++) {
-        numbers[i] = argv_handle->Get(Nan::New(i))->NumberValue();
-      }
-
-      dispArr = new DispArray(numbers, argc);
-      val = variant_t(dispArr);
-    }
-    else if (info[2]->IsInt32()) {
-      val = variant_t(info[2]->Int32Value());
-    }
-    else if (info[2]->IsNumber()) {
-      val = variant_t(info[2]->NumberValue());
-    }
+    variant_t val = Tk5Utils::argToVariant(info[2]);
     clw->cl->set(addr, attr, val);
-    if (dispArr) {  }
+    SysFreeString(addr);
+    SysFreeString(attr);
   }
 
   static NAN_METHOD(Animate) {
@@ -124,12 +98,8 @@ public:
       }
     }
 
-    // first, get node address
-    BSTR addr = NULL;
-    if (info[1]->IsString()) {
-      String::Utf8Value cmd(info[1]);
-      addr = Tk5Utils::StrToBSTR(*cmd);
-    }
+    // get node address
+    BSTR addr = Tk5Utils::paramAsBSTR(info, 1);
     if (addr == NULL) {
       Nan::ThrowError(Nan::Error(Nan::New("Node address is missing in animate cmd").ToLocalChecked()));
       return;
@@ -150,12 +120,225 @@ public:
         clw->cl->animate(v, addr, opt);
       }
     }
+    SysFreeString(addr);
+  }
+
+  static NAN_METHOD(StopAnimation) {
+    CommandListWrapper* clw = Unwrap(info);
+    BSTR b1 = Tk5Utils::paramAsBSTR(info, 0);
+    BSTR b2 = Tk5Utils::paramAsBSTR(info, 1);
+    if (b1 == NULL) {
+      Nan::ThrowError("No scene name passed");
+      return;
+    }
+
+    if (b2 == NULL) { 
+      SysFreeString(b1);
+      Nan::ThrowError("No address argument passed to stopAnimation");
+      return;
+    }
+
+    HRESULT hr = clw->cl->stopAnimation(b1, b2);
+    SysFreeString(b1);
+    SysFreeString(b2);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(CreateNode) {
+    CommandListWrapper* clw = Unwrap(info);
+    BSTR b1 = Tk5Utils::paramAsBSTR(info, 0);
+    BSTR b2 = Tk5Utils::paramAsBSTR(info, 1);
+    if (b1 == NULL) {
+      Nan::ThrowError("No node type passed to createNode");
+      return;
+    }
+
+    if (b2 == NULL) {
+      SysFreeString(b1);
+      Nan::ThrowError("No address argument passed to createNode");
+      return;
+    }
+
+    HRESULT hr = clw->cl->createNode(b1, b2);
+    SysFreeString(b1);
+    SysFreeString(b2);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(CreateEffect) {
+    CommandListWrapper* clw = Unwrap(info);
+    BSTR b1 = Tk5Utils::paramAsBSTR(info, 0);
+    BSTR b2 = Tk5Utils::paramAsBSTR(info, 1);
+    if (b1 == NULL) {
+      Nan::ThrowError("No effect type passed to createEffect");
+      return;
+    }
+
+    if (b2 == NULL) {
+      SysFreeString(b1);
+      Nan::ThrowError("No address argument passed to createEffect");
+      return;
+    }
+
+    HRESULT hr = clw->cl->createEffect(b1, b2);
+    SysFreeString(b1);
+    SysFreeString(b2);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(CopyNode) {
+    CommandListWrapper* clw = Unwrap(info);
+    BSTR b1 = Tk5Utils::paramAsBSTR(info, 0);
+    BSTR b2 = Tk5Utils::paramAsBSTR(info, 1);
+    if (b1 == NULL) {
+      Nan::ThrowError("No src address passed to copyNode");
+      return;
+    }
+
+    if (b2 == NULL) {
+      SysFreeString(b1);
+      Nan::ThrowError("No dest address passed to copyNode");
+      return;
+    }
+
+    HRESULT hr = clw->cl->copyNode(b1, b2);
+    SysFreeString(b1);
+    SysFreeString(b2);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(RenameNode) {
+    CommandListWrapper* clw = Unwrap(info);
+    BSTR b1 = Tk5Utils::paramAsBSTR(info, 0);
+    BSTR b2 = Tk5Utils::paramAsBSTR(info, 1);
+    if (b1 == NULL) {
+      Nan::ThrowError("No src address passed to renameNode");
+      return;
+    }
+
+    if (b2 == NULL) {
+      SysFreeString(b1);
+      Nan::ThrowError("No dest address passed to renameNode");
+      return;
+    }
+
+    HRESULT hr = clw->cl->renameNode(b1, b2);
+    SysFreeString(b1);
+    SysFreeString(b2);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(DeleteNode) {
+    CommandListWrapper* clw = Unwrap(info);
+    BSTR b1 = Tk5Utils::paramAsBSTR(info, 0);
+    if (b1 == NULL) {
+      Nan::ThrowError("No address passed to deleteNode");
+      return;
+    }
+
+    HRESULT hr = clw->cl->deleteNode(b1);
+    SysFreeString(b1);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(DeleteEffect) {
+    CommandListWrapper* clw = Unwrap(info);
+    BSTR b1 = Tk5Utils::paramAsBSTR(info, 0);
+    if (b1 == NULL) {
+      Nan::ThrowError("No address passed to deleteEffect");
+      return;
+    }
+
+    HRESULT hr = clw->cl->deleteEffect(b1);
+    SysFreeString(b1);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(DoAction) {
+    CommandListWrapper* clw = Unwrap(info);
+    BSTR b1 = Tk5Utils::paramAsBSTR(info, 0);
+    if (b1 == NULL) {
+      Nan::ThrowError("No action name passed to doAction");
+      return;
+    }
+      
+    HRESULT hr = clw->cl->doAction(b1);
+    SysFreeString(b1);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(BeginTransaction) {
+    CommandListWrapper* clw = Unwrap(info);
+    variant_t v = Tk5Utils::argToVariant(info[0]);
+    HRESULT hr = clw->cl->beginTransaction(v);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(EndTransaction) {
+    CommandListWrapper* clw = Unwrap(info);
+    HRESULT hr = clw->cl->endTransaction();
+    Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(RollTransaction) {
+    CommandListWrapper* clw = Unwrap(info);
+    variant_t v = Tk5Utils::argToVariant(info[0]);
+    HRESULT hr = clw->cl->rollTransaction(v);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(Callback) {
+    CommandListWrapper* clw = Unwrap(info);
+    long id = info[0]->Uint32Value();
+    HRESULT hr = clw->cl->callback(&id);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(Preload) {
+    CommandListWrapper* clw = Unwrap(info);
+    BSTR b1 = Tk5Utils::paramAsBSTR(info, 0);
+    if (b1 == NULL) {
+      Nan::ThrowError("No address passed to preload");
+      return;
+    }
+
+    HRESULT hr = clw->cl->preload(b1);
+    SysFreeString(b1);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(BeginSequencePreview) {
+    CommandListWrapper* clw = Unwrap(info);
+    long id = info[0]->Uint32Value();
+    HRESULT hr = clw->cl->beginSequencePreview(id);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(EndSequencePreview) {
+    CommandListWrapper* clw = Unwrap(info);
+    int id = info[0]->Uint32Value();
+    HRESULT hr = clw->cl->endSequencePreview(id);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(CaptureStillPreview) {
+    CommandListWrapper* clw = Unwrap(info);
+    int id = info[0]->Uint32Value();
+    HRESULT hr = clw->cl->captureStillPreview(id);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(SetZoneState) {
+    CommandListWrapper* clw = Unwrap(info);
+    BOOL state = info[0]->BooleanValue();
+    HRESULT hr = clw->cl->setZoneState(state);
+    Tk5Utils::CheckAndThrowCOMError(hr);
   }
 
   static NAN_METHOD(LoadScene) {
     CommandListWrapper* clw = Unwrap(info);
-    BSTR b1 = paramAsBSTR(info, 0);
-    BSTR b2 = paramAsBSTR(info, 1);
+    BSTR b1 = Tk5Utils::paramAsBSTR(info, 0);
+    BSTR b2 = Tk5Utils::paramAsBSTR(info, 1);
     if (b1 == NULL) {
       Nan::ThrowError("No scene name passed");
       return;

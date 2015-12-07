@@ -36,17 +36,6 @@ public:
     constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
   }
 
-  static inline BSTR paramAsBSTR(Nan::NAN_METHOD_ARGS_TYPE info, int idx) {
-    if (info[idx]->IsString()) {
-      String::Utf8Value cmd(info[idx]);
-      BSTR b = Tk5Utils::StrToBSTR(*cmd);
-      return b;
-    }
-    else {
-      return NULL;
-    }
-  }
-
   static inline AnimationOptionsWrapper* Unwrap(Nan::NAN_METHOD_ARGS_TYPE info) {
     return Nan::ObjectWrap::Unwrap<AnimationOptionsWrapper>(info.This());
   }
@@ -128,8 +117,9 @@ public:
   static NAN_SETTER(SetPlayMode) {
     AnimationOptionsWrapper* obj = Unwrap(info);
     String::Utf8Value cmd(value);
-    BSTR b = Tk5Utils::StrToBSTR(*cmd);
+    BSTR b = Tk5Utils::Utf8StrToBSTR(*cmd);
     obj->options->put_playMode(b);
+    SysFreeString(b);
   }
 
   static NAN_GETTER(GetEnableFinish) {
@@ -150,13 +140,15 @@ public:
     BSTR b;
     obj->options->get_name(&b);
     info.GetReturnValue().Set(Nan::New((uint16_t*)b).ToLocalChecked());
+    SysFreeString(b);
   }
 
   static NAN_SETTER(SetName) {
     AnimationOptionsWrapper* obj = Unwrap(info);
     String::Utf8Value cmd(value);
-    BSTR b = Tk5Utils::StrToBSTR(*cmd);
+    BSTR b = Tk5Utils::Utf8StrToBSTR(*cmd);
     obj->options->put_name(b);
+    SysFreeString(b);
   }
 
   static NAN_GETTER(GetWatchID) {

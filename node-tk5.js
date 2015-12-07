@@ -10,7 +10,7 @@ var events = require('events');
 console.log('wait...');
 setTimeout(function() {
   console.log('go');
-  var TM = require('./build/Debug/node-tk5').TitleManager;
+  var TM = require('./build/Release/node-tk5').TitleManager;
   inherits(TM, events.EventEmitter);
 
   var tm = new TM();

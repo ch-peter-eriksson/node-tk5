@@ -59,6 +59,4 @@ public:
     static Nan::Persistent<v8::Function> my_constructor;
     return my_constructor;
   }
-
-
 };
