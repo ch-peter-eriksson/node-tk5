@@ -11,7 +11,11 @@ Install (npm):
 `npm install "git+https://bitbucket.org/chyronhego_se/node-tk5.git" --msvs_version=2015`
 
 ###Example code
-`var TitleManager = require('node-tk5').TitleManager;
+
+```
+#!javascript
+
+var TitleManager = require('node-tk5').TitleManager;
 
 var tm = new TitleManager();
 var client = tm.getClient();
@@ -25,6 +29,8 @@ cl.loadScene('myScene.gse', 'myScene');
 cl.set('node', 'Attribute', 'MyData');
 var title = tm.createTitle('')
 title.execute(cl);
-`
+
+```
+
 
 Almost all of the api is the same as TK5, only difference is how events are signaled.
