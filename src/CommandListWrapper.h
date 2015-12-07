@@ -74,7 +74,7 @@ public:
       return;
     }
 
-    BSTR attr = Tk5Utils::paramAsBSTR(info, 0);
+    BSTR attr = Tk5Utils::paramAsBSTR(info, 1);
     if (attr == NULL) {
       SysFreeString(addr);
       Nan::ThrowError(Nan::Error(Nan::New("Attribute is missing in set cmd").ToLocalChecked()));
