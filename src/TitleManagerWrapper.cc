@@ -1,4 +1,5 @@
 #include "TitleManagerWrapper.h"
+#include <sstream>
 
 using namespace v8;
 using namespace std;
@@ -55,18 +56,37 @@ static void GS2Message(void* owner, BSTR msg) {
   Nan::MakeCallback(sender->handle(), "emit", 2, argv);
 }
 
+// You could also take an existing vector as a parameter.
+vector<string> split(string str, char delimiter) {
+  vector<string> internal;
+  stringstream ss(str); // Turn the string into a stream.
+  string tok;
+
+  while (getline(ss, tok, delimiter)) {
+    internal.push_back(tok);
+  }
+
+  return internal;
+}
 
 TitleManagerWrapper::TitleManagerWrapper()
 {
   CoInitialize(NULL);
 
+  //moduleDir includes build/release, remove last two folders to find module root
+  vector<string> v = split(*moduleDir, '\\');
+  string path("");
+  for (size_t i = 0; i < v.size() - 2; i++) {
+    path.append(v[i].append("\\"));
+  }
+
   ACTCTX actCtx;
   memset((void*)&actCtx, 0, sizeof(ACTCTX));
   actCtx.cbSize = sizeof(ACTCTX);
 #if defined(_M_X64)
-  actCtx.lpSource = "TitleManager.x.64.manifest"; 
+  actCtx.lpSource = path.append("TitleManager.x.64.manifest").c_str(); 
 #else
-  actCtx.lpSource = "TitleManager.x.32.manifest";
+  actCtx.lpSource = path.append("TitleManager.x.32.manifest").c_str();
 #endif
 
   HANDLE hCtx = ::CreateActCtx(&actCtx);
