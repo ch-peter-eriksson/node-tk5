@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -17,20 +17,20 @@
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
     <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Label="Locals">
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
-  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props"/>
-  <ImportGroup Label="ExtensionSettings"/>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
+  <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="PropertySheets">
-    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"/>
+    <Import Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros"/>
+  <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <ExecutablePath>$(ExecutablePath);$(MSBuildProjectDirectory)\..\bin\;$(MSBuildProjectDirectory)\..\bin\</ExecutablePath>
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
@@ -66,7 +66,7 @@
       <WarningLevel>Level3</WarningLevel>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;c:\dev\git\nodejs\node\$(Configuration)\node.lib&quot;;comsuppw.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;"c:\dev\git\nodejs\node\$(Configuration)\node.lib";comsuppw.lib</AdditionalDependencies>
       <AdditionalOptions>/ignore:4199 %(AdditionalOptions)</AdditionalOptions>
       <AllowIsolation>true</AllowIsolation>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -114,7 +114,7 @@
       <AdditionalOptions>/LTCG %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;c:\dev\git\nodejs\node\$(Configuration)\node.lib&quot;;comsuppw.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;"c:\dev\git\nodejs\node\$(Configuration)\node.lib";comsuppw.lib</AdditionalDependencies>
       <AdditionalOptions>/ignore:4199 %(AdditionalOptions)</AdditionalOptions>
       <AllowIsolation>true</AllowIsolation>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -137,32 +137,37 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="..\binding.gyp"/>
+    <None Include="..\binding.gyp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\TitleWrapper.h"/>
-    <ClInclude Include="..\src\AnimationWrapper.h"/>
-    <ClInclude Include="..\src\AnimationChannelWrapper.h"/>
-    <ClInclude Include="..\src\AnimationOptionsWrapper.h"/>
-    <ClInclude Include="..\src\ClientWrapper.h"/>
-    <ClInclude Include="..\src\TitleManagerWrapper.h"/>
-    <ClInclude Include="..\src\CmdEventSink.h"/>
-    <ClInclude Include="..\src\CommandListWrapper.h"/>
-    <ClInclude Include="..\src\DispArray.h"/>
-    <ClInclude Include="..\src\EventWorker.h"/>
-    <ClInclude Include="..\src\tk5utils.h"/>
+    <ClInclude Include="..\src\TitleWrapper.h" />
+    <ClInclude Include="..\src\AnimationWrapper.h" />
+    <ClInclude Include="..\src\AnimationChannelWrapper.h" />
+    <ClInclude Include="..\src\AnimationOptionsWrapper.h" />
+    <ClInclude Include="..\src\ClientWrapper.h" />
+    <ClInclude Include="..\src\TitleManagerWrapper.h" />
+    <ClInclude Include="..\src\CmdEventSink.h" />
+    <ClInclude Include="..\src\CommandListWrapper.h" />
+    <ClInclude Include="..\src\DispArray.h" />
+    <ClInclude Include="..\src\EventWorker.h" />
+    <ClInclude Include="..\src\tk5utils.h" />
+    <ClInclude Include="..\Toolkit5_h.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Toolkit5_i.c"/>
-    <ClCompile Include="..\src\TitleWrapper.cc"/>
-    <ClCompile Include="..\src\ClientWrapper.cc"/>
-    <ClCompile Include="..\src\TitleManagerWrapper.cc"/>
-    <ClCompile Include="..\src\CmdEventSink.cc"/>
-    <ClCompile Include="..\src\DispArray.cc"/>
-    <ClCompile Include="..\src\tk5utils.cc"/>
-    <ClCompile Include="C:\Users\Peter\AppData\Roaming\npm\node_modules\node-gyp\src\win_delay_load_hook.c"/>
+    <ClCompile Include="..\src\TitleWrapper.cc" />
+    <ClCompile Include="..\src\ClientWrapper.cc" />
+    <ClCompile Include="..\src\TitleManagerWrapper.cc" />
+    <ClCompile Include="..\src\CmdEventSink.cc" />
+    <ClCompile Include="..\src\DispArray.cc" />
+    <ClCompile Include="..\src\tk5utils.cc" />
+    <ClCompile Include="..\Toolkit5_i.c" />
+    <ClCompile Include="C:\Users\Peter\AppData\Roaming\npm\node_modules\node-gyp\src\win_delay_load_hook.c" />
   </ItemGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
-  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets"/>
-  <ImportGroup Label="ExtensionTargets"/>
+  <ItemGroup>
+    <ResourceCompile Include="node-tk5.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
+  <ImportGroup Label="ExtensionTargets" />
 </Project>
