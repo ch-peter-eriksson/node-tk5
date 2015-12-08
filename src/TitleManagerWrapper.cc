@@ -91,6 +91,12 @@ TitleManagerWrapper::TitleManagerWrapper()
   if (ptm == NULL) {
     hr = CoCreateInstance(CLSID_TitleManager, NULL, CLSCTX_ALL, IID_IGSTitleManager, (void **)&ptm);
   }
+
+  if (ptm == NULL) {
+    Nan::ThrowError("GSTK5 cannot be instantiated");
+    return;
+  }
+
   IGSClient* client;
   hr = ptm->getClient(&client);
   client->createAsyncProcessor(&asyncProc);
