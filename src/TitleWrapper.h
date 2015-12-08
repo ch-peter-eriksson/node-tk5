@@ -18,6 +18,9 @@ public:
     tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
     Nan::SetPrototypeMethod(tpl, "execute", Execute);
+    Nan::SetPrototypeMethod(tpl, "destroy", Destroy);
+    Nan::SetPrototypeMethod(tpl, "destroyInTransaction", DestroyInTransaction);
+    Nan::SetPrototypeMethod(tpl, "setDestroyTransactionName", SetDestroyTransactionName);
 
     constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
   }
@@ -32,6 +35,26 @@ public:
       v = nodePrefix.c_str();
     }
     obj->title->execute(clw->cl, v);
+  }
+
+  static NAN_METHOD(Destroy) {
+    TitleWrapper* obj = Nan::ObjectWrap::Unwrap<TitleWrapper>(info.This());
+    obj->title->destroy();
+    obj->title = NULL;
+  }
+
+  static NAN_METHOD(DestroyInTransaction) {
+    TitleWrapper* obj = Nan::ObjectWrap::Unwrap<TitleWrapper>(info.This());
+    variant_t v = Tk5Utils::argToVariant(info[0]);
+    obj->title->destroyInTransaction(v);
+    obj->title = NULL;
+  }
+
+  static NAN_METHOD(SetDestroyTransactionName) {
+    TitleWrapper* obj = Nan::ObjectWrap::Unwrap<TitleWrapper>(info.This());
+    BSTR b = Tk5Utils::paramAsBSTR(info, 0);
+    obj->title->setDestroyTransactionName(b);
+    SysFreeString(b);
   }
 
   static Nan::NAN_METHOD_RETURN_TYPE NewInstance(Nan::NAN_METHOD_ARGS_TYPE info, IGSTitle* title) {
