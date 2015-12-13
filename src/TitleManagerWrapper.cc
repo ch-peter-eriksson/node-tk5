@@ -1,5 +1,4 @@
 #include "TitleManagerWrapper.h"
-#include <sstream>
 
 using namespace v8;
 using namespace std;
@@ -56,27 +55,14 @@ static void GS2Message(void* owner, BSTR msg) {
   Nan::MakeCallback(sender->handle(), "emit", 2, argv);
 }
 
-// You could also take an existing vector as a parameter.
-vector<string> split(string str, char delimiter) {
-  vector<string> internal;
-  stringstream ss(str); // Turn the string into a stream.
-  string tok;
-
-  while (getline(ss, tok, delimiter)) {
-    internal.push_back(tok);
-  }
-
-  return internal;
-}
-
 TitleManagerWrapper::TitleManagerWrapper()
 {
   CoInitialize(NULL);
 
-  //moduleDir includes build/release, remove last two folders to find module root
-  vector<string> v = split(*moduleDir, '\\');
+  //moduleFilename=a/b/c/build/release/node-tk5.node - get path to module root
+  vector<string> v = Tk5Utils::split(*moduleFilename, '\\');
   string path("");
-  for (size_t i = 0; i < v.size() - 2; i++) {
+  for (size_t i = 0; i < v.size() - 3; i++) {
     path.append(v[i].append("\\"));
   }
 
@@ -102,6 +88,9 @@ TitleManagerWrapper::TitleManagerWrapper()
     if (::ActivateActCtx(hCtx, &cookie))
     {
       HRESULT hr = CoCreateInstance(CLSID_TitleManager, NULL, CLSCTX_ALL, IID_IGSTitleManager, (void **)&ptm);
+      if (FAILED(hr)) {
+        ptm = NULL;
+      }
       ::DeactivateActCtx(0, cookie);
     }
   }
@@ -110,6 +99,9 @@ TitleManagerWrapper::TitleManagerWrapper()
   // side-by-side failed, try to create titlemanager the regular way..
   if (ptm == NULL) {
     hr = CoCreateInstance(CLSID_TitleManager, NULL, CLSCTX_ALL, IID_IGSTitleManager, (void **)&ptm);
+    if (FAILED(hr)) {
+      ptm = NULL;
+    }
   }
 
   if (ptm == NULL) {

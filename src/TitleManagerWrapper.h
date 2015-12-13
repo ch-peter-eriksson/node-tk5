@@ -11,14 +11,14 @@
 #include "AnimationOptionsWrapper.h"
 #include "CommandListWrapper.h"
 #include "comutil.h"
-#include <iostream>
+#include "tk5utils.h"
 
 #define _WIN32_FUSION 0x0100
 
 using namespace v8;
 using namespace std;
 
-static string *moduleDir;
+static string *moduleFilename;
 
 class TitleManagerWrapper : public Nan::ObjectWrap
 {
@@ -27,64 +27,13 @@ private:
   IGSAsyncProcessor* asyncProc = NULL;
   ISupportErrorInfo * supportErrorInfo = NULL;
 public:
-  static std::string toStdString(Local<String> s) {
-    char *buf = new char[s->Length() + 1];
-    s->WriteUtf8(buf);
-    std::string result(buf);
-    delete[] buf;
-    return result;
-  }
-  static std::string portDirname(const std::string& filename) {
-    if (filename.length() == 0) return std::string(".");
-
-    // Check for and ignore trailing slashes
-    size_t lastpos = filename.length() - 1;
-    while (lastpos > 0 && (filename[lastpos] == '/' || filename[lastpos] == '\\')) {
-      lastpos--;
-    }
-
-    std::size_t slashpos = filename.rfind("/", lastpos);
-    std::size_t bslashpos = filename.rfind("\\", lastpos);
-    if (slashpos == std::string::npos && bslashpos == std::string::npos) {
-      // No slashes
-      return std::string(".");
-    }
-    else {
-      std::size_t pos;
-      if (slashpos != std::string::npos) pos = slashpos;
-      else if (bslashpos != std::string::npos) pos = bslashpos;
-      else pos = (slashpos > bslashpos) ? slashpos : bslashpos;
-      if (pos == 0) {
-        return filename.substr(0, 1);
-      }
-      else {
-        // Remove trailing slashes
-        size_t endpos = pos;
-        while (endpos > 0 && (filename[endpos] == '/' || filename[endpos] == '\\')) {
-          endpos--;
-        }
-        return filename.substr(0, endpos + 1);
-      }
-    }
+  static std::string* getModulePath(Handle<Object> module) {
+    std::string filename(Tk5Utils::v8StrToStdStr(module->Get(Nan::New<String>("filename").ToLocalChecked())->ToString()));
+    return new std::string(filename);
   }
 
-  static std::string* getModuleDir(Handle<Object> module) {
-    std::string moduleFilename(toStdString(module->Get(Nan::New<String>("filename").ToLocalChecked())->ToString()));
-    return new std::string(portDirname(moduleFilename));
-  }
-  static Local<Object> getProcessObject() {
-    return Nan::GetCurrentContext()->Global()->Get(Nan::New<String>("process").ToLocalChecked())->ToObject();
-  }
-
-  static std::string* findApplicationDir() {
-    Handle<Value> mainModule = getProcessObject()->Get(Nan::New<String>("mainModule").ToLocalChecked());
-    if (!mainModule->IsUndefined()) {
-      return getModuleDir(mainModule->ToObject());
-    }
-    return NULL;
-  }
   static void Init(Nan::ADDON_REGISTER_FUNCTION_ARGS_TYPE target, Handle<Object> module){
-    moduleDir = getModuleDir(module);
+    moduleFilename = getModulePath(module);
     TitleWrapper::Init(target);
     ClientWrapper::Init(target);
     AnimationWrapper::Init(target);

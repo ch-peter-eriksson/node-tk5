@@ -1,11 +1,33 @@
 #include "nan.h"
 #include "Tk5Utils.h"
 #include "DispArray.h"
+#include <iostream>
+#include <sstream>
   
 using namespace std;
 using namespace v8;
 
 namespace Tk5Utils {
+  vector<string> split(string str, char delimiter) {
+    vector<string> internal;
+    stringstream ss(str); // Turn the string into a stream.
+    string tok;
+
+    while (getline(ss, tok, delimiter)) {
+      internal.push_back(tok);
+    }
+
+    return internal;
+  }
+
+  std::string v8StrToStdStr(v8::Local<v8::String> s) {
+    char *buf = new char[s->Length() + 1];
+    s->WriteUtf8(buf);
+    std::string result(buf);
+    delete[] buf;
+    return result;
+  }
+
   bool CheckAndThrowCOMError(HRESULT hr) {
     if (FAILED(hr)) {
       IErrorInfo *inf = NULL;
