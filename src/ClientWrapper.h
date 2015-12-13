@@ -38,6 +38,10 @@ public:
     Nan::SetPrototypeMethod(tpl, "previewGetSequenceImageFiles", PreviewGetSequenceImageFiles);
     Nan::SetPrototypeMethod(tpl, "writeRenderPicture", WriteRenderPicture);
     Nan::SetPrototypeMethod(tpl, "writeScene", WriteScene);
+    Nan::SetPrototypeMethod(tpl, "roaGet", RoaGet);
+    Nan::SetPrototypeMethod(tpl, "roaSet", RoaSet);
+    Nan::SetPrototypeMethod(tpl, "roaCall", RoaCall);
+
 
     constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
   }
@@ -171,6 +175,53 @@ public:
     ClientWrapper* obj = Unwrap(info);
     HRESULT hr = obj->client->writeScene();
     Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(RoaGet) {
+    ClientWrapper* obj = Unwrap(info);
+    BSTR b1 = Tk5Utils::paramAsBSTR(info, 0);
+    BSTR b2 = Tk5Utils::paramAsBSTR(info, 1);
+    variant_t v;
+    HRESULT hr = obj->client->roaGet(b1, b2, &v);
+
+    Tk5Utils::returnVariant(info.GetReturnValue(), v);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+  }
+
+  static NAN_METHOD(RoaSet) {
+    ClientWrapper* obj = Unwrap(info);
+    BSTR b1 = Tk5Utils::paramAsBSTR(info, 0);
+    BSTR b2 = Tk5Utils::paramAsBSTR(info, 1);
+    variant_t v = Tk5Utils::argToVariant(info[2]);
+    HRESULT hr = obj->client->roaSet(b1, b2, v);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+    SysFreeString(b1);
+    SysFreeString(b2);
+  }
+
+  static NAN_METHOD(RoaCall) {
+    ClientWrapper* obj = Unwrap(info);
+    BSTR b1 = Tk5Utils::paramAsBSTR(info, 0);
+    BSTR b2 = Tk5Utils::paramAsBSTR(info, 1);
+
+    LPSAFEARRAY args;
+    SAFEARRAYBOUND bound;
+    bound.lLbound = 1;
+    bound.cElements = info.Length() - 2;
+    args = SafeArrayCreate(VT_VARIANT, 1, &bound);
+    VARIANT* pData = (VARIANT*)args->pvData;
+    variant_t res;
+
+    for (size_t i = 0; i < bound.cElements; i++) {
+      pData[i] = Tk5Utils::argToVariant(info[i + 2]);
+    }
+    HRESULT hr = obj->client->roaCall(b1, b2, args, &res);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+    SafeArrayDestroy(args);
+    SysFreeString(b1);
+    SysFreeString(b2);
+    Tk5Utils::returnVariant(info.GetReturnValue(), res);
+    VariantClear(&res);
   }
 
   static Nan::NAN_METHOD_RETURN_TYPE NewInstance(Nan::NAN_METHOD_ARGS_TYPE info, IGSClient* client) {

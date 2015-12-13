@@ -8,6 +8,36 @@ using namespace std;
 using namespace v8;
 
 namespace Tk5Utils {
+  void returnVariant(Nan::ReturnValue<v8::Value> val, variant_t v) {
+    //v.vt
+    switch (v.vt) {
+    case VT_BSTR: {
+      val.Set(Nan::New<v8::String>((uint16_t*)v.bstrVal).ToLocalChecked());
+      break;
+    }
+    case VT_BOOL: {
+      val.Set(Nan::New<v8::Boolean>(v.boolVal));
+      break;
+    }
+    case VT_I4: {
+      val.Set(Nan::New<v8::Integer>(v.intVal));
+      break;
+    }
+    case VT_I8: {
+      val.Set(Nan::New<v8::Integer>(v.intVal));
+      break;
+    }
+    case VT_R4: {
+      val.Set(Nan::New<v8::Number>(v.fltVal));
+      break;
+    }
+    case VT_R8: {
+      val.Set(Nan::New<v8::Number>(v.fltVal));
+      break;
+    }
+    }
+  }
+
   vector<string> split(string str, char delimiter) {
     vector<string> internal;
     stringstream ss(str); // Turn the string into a stream.

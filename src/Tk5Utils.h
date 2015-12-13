@@ -11,4 +11,5 @@ namespace Tk5Utils {
   BSTR Utf8StrToBSTR(char* str);
   std::string v8StrToStdStr(v8::Local<v8::String> s);
   variant_t argToVariant(v8::Local<v8::Value> arg);
-}
+  void returnVariant(Nan::ReturnValue<v8::Value> val, variant_t v);
+ }

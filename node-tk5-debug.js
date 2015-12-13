@@ -39,6 +39,8 @@ setTimeout(function() {
   var c = tm.getClient();
   c.setServerAddress('sarv-pe');
   c.connect();
+//  console.log(c.roaCall('::Control', 'shutdown', 'now'));
+  console.log(c.roaGet('::Output0', '_genlockPresent'));
   console.log('addr', c.getServerAddress());
 
 var t;
@@ -47,6 +49,7 @@ var t;
   var cl = tm.createCommandList();
   cl.loadScene('peter.gse', 'peter');
   var opt = tm.createAnimationOptions();
+  opt.watchID = 123;
   opt.playMode = 'BACKWARD';
   var anim = tm.createAnimation();
   var ch = anim.createChannel();
@@ -62,6 +65,7 @@ var t;
   cl.beginTransaction('123asdf');
 
   t.execute(cl);
+  console.log(c.roaCall('::AnimationWatchMonitor', 'getStateXML', 123));
 console.log('waiting again');
 }, 1000);
 
