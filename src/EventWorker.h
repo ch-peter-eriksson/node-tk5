@@ -45,7 +45,7 @@ namespace EventWorker {
     work->asyncProc = asyncProc;
     work->async.data = work;
     
-    uv_async_init(uv_default_loop(), &work->async, WorkAsyncComplete);
+    uv_async_init(uv_default_loop(), &work->async, (uv_async_cb)WorkAsyncComplete);
     uv_unref((uv_handle_t *)&work->async);
     work->thd = std::thread(runThread, work);
   }
