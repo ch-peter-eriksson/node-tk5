@@ -114,13 +114,14 @@ TitleManagerWrapper::TitleManagerWrapper()
   client->createAsyncProcessor(&asyncProc);
 
   EventWorker::Run(asyncProc);
+  eventSinkTM = new CmdEventSink((IDispatch*)ptm, (void*)this);
+  eventSinkTM->onCommandEvent = &GS2Command;
 
-  eventSink = new CmdEventSink((IDispatch*)client, (void*)this);
-  eventSink->onCommandEvent = &GS2Command;
-  eventSink->onDisconnectEvent = &GS2Disconnect;
-  eventSink->onPickResultEvent = &GS2PickResult;
-  eventSink->onZoneChangeEvent = &GS2ZoneStateChange;
-  eventSink->onMessageEvent = &GS2Message;
+  eventSinkClient = new CmdEventSink((IDispatch*)client, (void*)this);
+  eventSinkClient->onDisconnectEvent = &GS2Disconnect;
+  eventSinkClient->onPickResultEvent = &GS2PickResult;
+  eventSinkClient->onZoneChangeEvent = &GS2ZoneStateChange;
+  eventSinkClient->onMessageEvent = &GS2Message;
 
   hr = ptm->QueryInterface(IID_ISupportErrorInfo, (void **)&supportErrorInfo);
   if SUCCEEDED(hr) {
@@ -133,9 +134,14 @@ TitleManagerWrapper::~TitleManagerWrapper()
   if (ptm) { 
     asyncProc->close();
     
-    if (eventSink) {
-      eventSink->DisconnectSink();
-      eventSink = NULL;
+    if (eventSinkTM) {
+      eventSinkTM->DisconnectSink();
+      eventSinkTM = NULL;
+    }
+
+    if (eventSinkClient) {
+      eventSinkClient->DisconnectSink();
+      eventSinkClient = NULL;
     }
 
     ptm->Release();

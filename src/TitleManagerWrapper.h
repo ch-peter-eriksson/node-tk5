@@ -23,7 +23,8 @@ static string *moduleFilename;
 class TitleManagerWrapper : public Nan::ObjectWrap
 {
 private:
-  CmdEventSink * eventSink = NULL;
+  CmdEventSink * eventSinkTM = NULL;
+  CmdEventSink * eventSinkClient = NULL;
   IGSAsyncProcessor* asyncProc = NULL;
   ISupportErrorInfo * supportErrorInfo = NULL;
 public:

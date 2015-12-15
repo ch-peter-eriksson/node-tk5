@@ -59,6 +59,7 @@ var t;
   ch.addKeyframe(0, 0, "LINEAR", "LINEAR"); 
   ch.addKeyframe(50, 500, "LINEAR", "LINEAR");
   cl.animate(anim, 'a', opt);
+  var id = cl.callback();
 
 //  cl.set('text', 'BaseColor', [1,1,0,0.5]); 
   cl.set('text', 'Text', 'HOHO۞'); 
@@ -75,7 +76,7 @@ setTimeout(function() {
   delete tm;
   setTimeout(function() {
    }, 20000);
-}, 5000);
+}, 15000);
 
 // extend prototype
 function inherits(target, source) {
