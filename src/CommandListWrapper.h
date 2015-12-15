@@ -291,6 +291,7 @@ public:
     CommandListWrapper* clw = Unwrap(info);
     long id = info[0]->Uint32Value();
     HRESULT hr = clw->cl->callback(&id);
+    info.GetReturnValue().Set(id);
     Tk5Utils::CheckAndThrowCOMError(hr);
   }
 
