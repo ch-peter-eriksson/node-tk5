@@ -19,6 +19,10 @@ public:
 
     Nan::SetPrototypeMethod(tpl, "execute", Execute);
     Nan::SetPrototypeMethod(tpl, "destroy", Destroy);
+    Nan::SetPrototypeMethod(tpl, "setProject", SetProject);
+    Nan::SetPrototypeMethod(tpl, "setTitleName", SetTitleName);
+    Nan::SetPrototypeMethod(tpl, "getZone", GetZone);
+
     Nan::SetPrototypeMethod(tpl, "destroyInTransaction", DestroyInTransaction);
     Nan::SetPrototypeMethod(tpl, "setDestroyTransactionName", SetDestroyTransactionName);
 
@@ -40,6 +44,31 @@ public:
   static NAN_METHOD(Destroy) {
     TitleWrapper* obj = Nan::ObjectWrap::Unwrap<TitleWrapper>(info.This());
     obj->title->destroy();
+    obj->title = NULL;
+  }
+
+  static NAN_METHOD(SetProject) {
+    TitleWrapper* obj = Nan::ObjectWrap::Unwrap<TitleWrapper>(info.This());
+    BSTR b1 = Tk5Utils::paramAsBSTR(info, 0);
+    obj->title->setProject(b1);
+    SysFreeString(b1);
+    obj->title = NULL;
+  }
+
+  static NAN_METHOD(SetTitleName) {
+    TitleWrapper* obj = Nan::ObjectWrap::Unwrap<TitleWrapper>(info.This());
+    BSTR b1 = Tk5Utils::paramAsBSTR(info, 0);
+    obj->title->setTitleName(b1);
+    SysFreeString(b1);
+    obj->title = NULL;
+  }
+
+  static NAN_METHOD(GetZone) {
+    TitleWrapper* obj = Nan::ObjectWrap::Unwrap<TitleWrapper>(info.This());
+    BSTR b1;
+    obj->title->getZone(&b1);
+    info.GetReturnValue().Set(Nan::New((uint16_t*)b1).ToLocalChecked());
+    SysFreeString(b1);
     obj->title = NULL;
   }
 
