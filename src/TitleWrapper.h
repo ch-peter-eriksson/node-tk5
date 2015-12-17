@@ -52,7 +52,6 @@ public:
     BSTR b1 = Tk5Utils::paramAsBSTR(info, 0);
     obj->title->setProject(b1);
     SysFreeString(b1);
-    obj->title = NULL;
   }
 
   static NAN_METHOD(SetTitleName) {
@@ -60,7 +59,6 @@ public:
     BSTR b1 = Tk5Utils::paramAsBSTR(info, 0);
     obj->title->setTitleName(b1);
     SysFreeString(b1);
-    obj->title = NULL;
   }
 
   static NAN_METHOD(GetZone) {
@@ -69,7 +67,6 @@ public:
     obj->title->getZone(&b1);
     info.GetReturnValue().Set(Nan::New((uint16_t*)b1).ToLocalChecked());
     SysFreeString(b1);
-    obj->title = NULL;
   }
 
   static NAN_METHOD(DestroyInTransaction) {

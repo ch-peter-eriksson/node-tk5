@@ -15,7 +15,7 @@ setTimeout(function() {
 
   var tm = new TM();
   console.log('Tk5 ver', tm.getToolkitVersion());
-  tm.setProject('repro');
+  tm.setProject('hoho');
   tm.on('message', function(msg) {
     console.log('MESSAGE!', msg);
   });
@@ -46,6 +46,7 @@ setTimeout(function() {
 var t;
 
   t = tm.createTitle('');
+  t.setProject('repro');
   var cl = tm.createCommandList();
   cl.loadScene('peter.gse', 'peter');
   var opt = tm.createAnimationOptions();
