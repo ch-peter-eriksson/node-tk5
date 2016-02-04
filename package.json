@@ -3,7 +3,7 @@
   "version": "0.1.6",
   "description": "Node.js GSTK5 API",
   "main": "node-tk5.js",
-  "private": true,
+  "private": false,
   "gypfile": true,
   "scripts": {
     "install": "prebuild --download"
