@@ -1,6 +1,6 @@
 {
   "name": "node-tk5",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Node.js GSTK5 API",
   "main": "node-tk5.js",
   "private": true,
