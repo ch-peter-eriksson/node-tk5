@@ -2,6 +2,10 @@
 Node API wrapping tk5
 
 ###Install
+npm install node-tk5
+
+--
+
 To build this library, following components are needed:
 
 * Visual Studio 2015 with c++ installed
