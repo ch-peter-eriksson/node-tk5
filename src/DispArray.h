@@ -5,10 +5,13 @@
 class DispArray : public IDispatch {
 private:
   long m_cRef = 0;
-  float *_arr = NULL;
+  float _arr[10];
   int _length = 0;
 public:
-  DispArray(float* arr, int length) { _arr = arr; _length = length; }
+  DispArray(float arr[], int length) { 
+    memcpy(_arr, arr, length * sizeof(float));
+    _length = length; 
+  }
   ~DispArray() { 
   }
   // IUnknown
