@@ -33,6 +33,11 @@ public:
     TitleWrapper* obj = Nan::ObjectWrap::Unwrap<TitleWrapper>(info.This());
     CommandListWrapper* clw = Nan::ObjectWrap::Unwrap<CommandListWrapper>(info[0]->ToObject());
     variant_t v = NULL;
+    if (obj->title == NULL) {
+      Nan::ThrowError(Nan::ReferenceError(Nan::New("Title is destroyed").ToLocalChecked()));
+      return;
+    }
+
     if ((info.Length() > 1) && (info[1]->IsString())) {
       String::Utf8Value cmd(info[1]);
       string nodePrefix = string(*cmd);
