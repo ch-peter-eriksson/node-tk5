@@ -53,6 +53,9 @@ public:
     SetPrototypeMethod(tpl, "createCommandList", CreateCommandList);
     SetPrototypeMethod(tpl, "setProject", SetProject);
     SetPrototypeMethod(tpl, "getToolkitVersion", GetToolkitVersion);
+    SetPrototypeMethod(tpl, "FindTitleByName", FindTitleByName);
+    SetPrototypeMethod(tpl, "findTitleByZone", FindTitleByZone);
+    
 
 
     constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
