@@ -29,6 +29,7 @@ public:
     Nan::SetPrototypeMethod(tpl, "setPassword", SetPassword);
     Nan::SetPrototypeMethod(tpl, "setServerAddress", SetServerAddress);
     Nan::SetPrototypeMethod(tpl, "getServerAddress", GetServerAddress);
+    Nan::SetPrototypeMethod(tpl, "getServerVersion", GetServerVersion);
     Nan::SetPrototypeMethod(tpl, "getZoneState", GetZoneState);
     Nan::SetPrototypeMethod(tpl, "setZoneState", SetZoneState);
     Nan::SetPrototypeMethod(tpl, "switchCamera", SwitchCamera);
@@ -95,8 +96,17 @@ public:
     BSTR addr;
     HRESULT hr = obj->client->getServerAddress(&addr);
     Tk5Utils::CheckAndThrowCOMError(hr);
-    SysFreeString(addr);
     info.GetReturnValue().Set(Nan::New((uint16_t*)addr).ToLocalChecked());
+    SysFreeString(addr);
+  }
+
+  static NAN_METHOD(GetServerVersion) {
+    ClientWrapper* obj = Unwrap(info);
+    BSTR ver;
+    HRESULT hr = obj->client->getServerVersion(&ver);
+    Tk5Utils::CheckAndThrowCOMError(hr);
+    info.GetReturnValue().Set(Nan::New((uint16_t*)ver).ToLocalChecked());
+    SysFreeString(ver);
   }
 
   static NAN_METHOD(GetZoneState) {
